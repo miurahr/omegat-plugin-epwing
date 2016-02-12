@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="omegat-plugin-epwing" default="default" basedir=".">
+  <description>Builds, tests, and runs the project OmegaT EPWING dictionary format plugin.</description>
+  <import file="nbproject/build-impl.xml"/>
+
+  <target name="-pre-init">
+    <tstamp>
+      <format property="build.date" pattern="yyMMdd" />
+    </tstamp>
+  </target>
+
+  <target name="-pre-compile">
+    <!-- Compile stub classes -->
+    <mkdir dir="build/stub-classes"/>
+    <javac destdir="build/stub-classes" source="${javac.source}" target="${javac.target}" debug="true" includeantruntime="false">
+      <src path="src-stubs"/>
+    </javac>
+  </target>
+
+  <target name="get-git-revision">
+    <exec executable="git" outputproperty="git.sha1" failifexecutionfails="false">
+      <arg value="rev-parse"/>
+      <arg value="--short"/>
+      <arg value="HEAD"/>
+    </exec>
+    <condition property="repo.revision" value="${git.sha1}">
+      <and>
+        <isset property="git.sha1"/>
+        <length string="${git.sha1}" trim="yes" length="0" when="greater"/>
+      </and>
+    </condition>
+  </target>
+
+  <target name="-post-jar">
+    <delete file="${dist.dir}/README.TXT"/>
+  </target>
+
+  <target name="-post-clean">
+    <delete dir="dist2"/>
+    <delete dir="dist"/>
+  </target>
+
+  <target name="release" depends="jar">
+    <mkdir dir="dist"/>
+    <copy todir="dist" file="README.md"/>
+  </target>
+
+  <!-- Builds a ZIP package -->
+  <target name="zip" description="Build Zip package" depends="jar,release,get-git-revision">
+    <mkdir dir="dist2"/>
+    <zip destfile="dist2/OmegaT_Plugin_EPWING_${build.date}_${repo.revision}.zip">
+      <zipfileset dir="dist" />
+    </zip>
+  </target>
+</project>

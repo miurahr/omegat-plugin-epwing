@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+OmegaT-Plugins: org.omegat.plugin.dictionary.epwing

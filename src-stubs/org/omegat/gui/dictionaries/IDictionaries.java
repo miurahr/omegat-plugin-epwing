@@ -3,8 +3,7 @@
           with fuzzy matching, translation memory, keyword search,
           glossaries, and translation leveraging into updated projects.
 
- Copyright (C) 2008 Alex Buloichik
-               2010 Wildrich Fourie
+ Copyright (C) 2015 Aaron Madlon-Kay
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
@@ -24,21 +23,17 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************/
 
-package org.omegat.core;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+package org.omegat.gui.dictionaries;
 
 import org.omegat.core.dictionaries.IDictionaryFactory;
-import org.omegat.gui.dictionaries.IDictionaries;
 
-/**
- * Stub class
- */
-public class Core {
-      public static IDictionaries getDictionaries() {
-          return null;
-      }
+public interface IDictionaries {
+    /**
+     * Refresh content on dictionary file changed.
+     */
+    public void refresh();
+
+    public void addDictionaryFactory(IDictionaryFactory factory);
+
+    public void removeDictionaryFactory(IDictionaryFactory factory);
 }

@@ -3,8 +3,7 @@
           with fuzzy matching, translation memory, keyword search,
           glossaries, and translation leveraging into updated projects.
 
- Copyright (C) 2008 Alex Buloichik
-               2010 Wildrich Fourie
+ Copyright (C) 2009-2014 Alex Buloichik
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
@@ -24,21 +23,58 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************/
 
-package org.omegat.core;
+package org.omegat.util;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.omegat.core.dictionaries.IDictionaryFactory;
-import org.omegat.gui.dictionaries.IDictionaries;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
- * Stub class
+ * Stub class 
+ * 
  */
-public class Core {
-      public static IDictionaries getDictionaries() {
-          return null;
-      }
+public class DirectoryMonitor extends Thread {
+    public DirectoryMonitor(final File dir, final Callback callback) {
+    }
+
+    public DirectoryMonitor(final File dir, final Callback callback, final DirectoryCallback directoryCallback) {
+    }
+    
+    public File getDir() {
+        return null;
+    }
+
+    public void fin() {
+    }
+
+    @Override
+    public void run() {
+    }
+
+    public synchronized Set<File> getExistFiles() {
+        return null;
+    }
+
+    public synchronized void checkChanges() {
+    }
+
+    public interface Callback {
+        /**
+         * Called on any file changes - created, modified, deleted.
+         */
+        void fileChanged(File file);
+    }
+    
+    public interface DirectoryCallback {
+        /**
+         * Called once for every directory where a file was changed - created, modified, deleted.
+         */
+        void directoryChanged(File file);
+    }
 }

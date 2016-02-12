@@ -15,6 +15,7 @@
     <tstamp>
       <format property="build.date" pattern="yyMMdd" />
     </tstamp>
+    <property name="dist.full.jar" value="omegat-plugin-epwing-dist.jar"/>
   </target>
 
   <target name="-pre-compile">
@@ -41,6 +42,14 @@
 
   <target name="-post-jar">
     <delete file="${dist.dir}/README.TXT"/>
+    <copy todir="${dist.dir}" file="README.md"/>
+    <copy todir="${dist.dir}" file="license.txt"/>
+    <jar jarfile="${dist.dir}/${dist.full.jar}" manifest="manifest.mf">
+      <zipfileset src="${dist.jar}"/>
+      <zipfileset src="lib/eb4j-core-1.0.5.jar" excludes="META-INF/**" />
+      <zipfileset src="lib/commons-lang-2.4.jar" excludes="META-INF/**" />
+      <zipfileset src="lib/slf4j-api-1.7.7.jar" excludes="META-INF/**" />
+    </jar>
   </target>
 
   <target name="-post-clean">
@@ -48,16 +57,26 @@
     <delete dir="dist"/>
   </target>
 
-  <target name="release" depends="jar">
-    <mkdir dir="dist"/>
-    <copy todir="dist" file="README.md"/>
-  </target>
-
   <!-- Builds a ZIP package -->
-  <target name="zip" description="Build Zip package" depends="jar,release,get-git-revision">
+  <target name="zip" description="Build Zip package" depends="jar,get-git-revision">
     <mkdir dir="dist2"/>
     <zip destfile="dist2/OmegaT_Plugin_EPWING_${build.date}_${repo.revision}.zip">
-      <zipfileset dir="dist" />
+      <zipfileset file="${dist.dir}/${dist.full.jar}"/>
+      <zipfileset file="README.md"/>
+      <zipfileset file="license.txt"/>
     </zip>
   </target>
+
+  <!-- Builds a source distribution -->
+  <target name="src" depends="init" description="Build source distribution">
+      <mkdir dir="dist2"/>
+      <zip destfile="dist2/OmegaT_Plugin_EPWING_${build.date}_${repo.revision}_Source.zip">
+          <fileset dir="."
+              includes="lib/** nbproject/** src/** src-stubs/** test/** README.md manifest.mf build.xml license.txt"
+              excludes="**/nbproject/private/** **/build/** **/dist/** **/dist2/**" />
+      </zip>
+  </target>
+
+  <target name="release" depends="zip,src"/>
+
 </project>

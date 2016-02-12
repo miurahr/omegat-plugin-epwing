@@ -3,7 +3,7 @@
           with fuzzy matching, translation memory, keyword search,
           glossaries, and translation leveraging into updated projects.
 
- Copyright (C) 2015 Hiroshi Miura
+ Copyright (C) 2015,2016 Hiroshi Miura
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
@@ -26,8 +26,10 @@
 package org.omegat.plugin.dictionaries;
 
 import java.io.File;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import fuku.eb4j.Book;
 import fuku.eb4j.EBException;
@@ -37,338 +39,330 @@ import fuku.eb4j.Searcher;
 import fuku.eb4j.hook.Hook;
 import fuku.eb4j.hook.HookAdapter;
 
-import org.omegat.util.Log;
+import org.omegat.core.Core;
+import org.omegat.core.dictionaries.DictionaryEntry;
+import org.omegat.core.dictionaries.IDictionary;
+import org.omegat.core.dictionaries.IDictionaryFactory;
+import org.omegat.gui.dictionaries.IDictionaries;
 
 /**
  * EPWING dictionary
+ *
  * @author Hiroshi Miura
  */
-public class EBDict implements IDictionary {
-    private String eBookDirectory = null;
-    private Book eBookDictionary = null;
-    private SubBook[] subBooks;
+public class EBDict implements IDictionaryFactory {
 
-    private static void logEBError(EBException e) {
-        switch (e.getErrorCode()) {
-            case EBException.CANT_READ_DIR:
-                Log.log("EPWING error: cannot read directory:" + e.getMessage());
-                break;
-            case EBException.DIR_NOT_FOUND:
-                Log.log("EPWING error: cannot found directory:" + e.getMessage());
-            default:
-                Log.log("EPWING error: " + e.getMessage());
-                break;
-        }
-    }
-    
-    public EBDict(File catalogFile) throws Exception {
-        eBookDirectory = catalogFile.getParent();
-        try {
-            eBookDictionary = new Book(eBookDirectory);
-        } catch (EBException e) {
-            logEBError(e);
-        }
-        final int bookType = eBookDictionary.getBookType();
-        if ( bookType != Book.DISC_EPWING ) {
-            throw new Exception("EPWING: Invalid type of dictionary");
-        }
-        subBooks = eBookDictionary.getSubBooks();
-    }
-
-    /**
-     * (non-Javadoc)
-     * @see org.omegat.core.dictionaries.IDictionary#searchExactMatch(java.lang.String)
-     *
-     * returns Object that will be given to readArticle()'s second argument.
-     */
-    public Object searchExactMatch(String key) {
-        Searcher sh;
-        Result searchResult;
-        Hook<String> hook;
-        String article;
-        Object result = null;
-
-        for (SubBook sb: subBooks) {
-            if (sb.hasExactwordSearch()) {
-                try {
-                    hook = new EBDictStringHook(sb);
-                    sh = sb.searchExactword(key);
-                    while ((searchResult = sh.getNextResult()) != null) {
-                        article = searchResult.getText(hook);
-                        result = addArticle(article, result);
-                    }
-                } catch (EBException e) {
-                    logEBError(e);
-               }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Add new article to result object. If article for this words was already read,
-     * it create array with all articles instead one article,
-     * and add new article to this array. It required to support multiple
-     * translations for one word in dictionary.
-     *
-     * @param text
-     *            translation article
-     * @param result
-     *            add to Object
-     */
-    private Object addArticle(final String text, final Object data) {
-        if (data == null) {
-            return text;
+    public static void loadPlugins() {
+        IDictionaries di= Core.getDictionaries();
+        if (di != null) {
+            di.addDictionaryFactory(new EBDict());
         } else {
-            if (data instanceof String[]) {
-                String[] dobj = (String[]) data;
-                String[] d = new String[dobj.length + 1];
-                System.arraycopy(dobj, 0, d, 0, dobj.length);
-                d[d.length - 1] = text;
-                return d;
-            } else {
-                String[] d = new String[2];
-                d[0] = (String) data;
-                d[1] = text;
-                return d;
-            }
+            System.out.println("EBDict: loadPlugins failed because Core.getDictionaries() returns null!");
         }
     }
 
-    /**
-     * Read article's text.
-     * 
-     * @param word
-     *            acticle name from key from readHeader method
-     * @param acticleData
-     *            object from value from readHeader method
-     * @return article text
-     */
+    public static void unloadPlugins() {
+    }
+
     @Override
-    public String readArticle(String word, Object data) throws Exception {
-            return (String) data;
+    public boolean isSupportedFile(File file) {
+        return file.getPath().toUpperCase().endsWith("CATALOGS");
     }
 
-    public class EBDictStringHook extends HookAdapter<String> {
-        private static final int MAX_LINES = 20;
-        private StringBuffer output = new StringBuffer(2048);
-        private SubBook subBook;
-        private int lineNum;
-        private boolean narrow = false;
-        private int decType;
+    @Override
+    public IDictionary loadDict(File file) throws Exception {
+        return new EBDictDict(file);
+    }
 
-        public EBDictStringHook(SubBook book) {
-            super();
-            subBook = book;
-            lineNum = 0;
-        }
+    static class EBDictDict implements IDictionary {
 
-        /**
-         * clear output line
-         */
-        @Override
-        public void clear() {
-            output.delete(0, output.length());
-            lineNum = 0;
-        }
+        private String eBookDirectory = null;
+        private Book eBookDictionary = null;
+        private SubBook[] subBooks;
+        private static final Logger LOG = Logger.getLogger(EBDict.class.getName());
 
-        /*
-         * get result string
-         */
-        @Override
-        public String getObject() {
-            return output.toString();
-        }
-
-        /*
-         * Can accept more input?
-         */
-        @Override
-        public boolean isMoreInput() {
-            if (lineNum >= MAX_LINES) {
-                return false;
-            }
-            return true;
-        }
-
-        /**
-         * Append article text.
-         *
-         * @param text 
-         */
-        @Override
-        public void append(String text) {
-            if (narrow) {
-                output.append(convertZen2Han(text));
-            } else {
-                output.append(text);
+        private static void logEBError(EBException e) {
+            switch (e.getErrorCode()) {
+                case EBException.CANT_READ_DIR:
+                    LOG.log(Level.WARNING, "EPWING error: cannot read directory:" + e.getMessage());
+                    break;
+                case EBException.DIR_NOT_FOUND:
+                    LOG.log(Level.WARNING, "EPWING error: cannot found directory:" + e.getMessage());
+                default:
+                    LOG.log(Level.WARNING, "EPWING error: " + e.getMessage());
+                    break;
             }
         }
 
-        /**
-         * Append GAIJI text(bitmap)
-         *
-         * @param code  gaiji code
-         *        referenced to bitmap gliff image
-         */
-        @Override
-        public void append(int code) {
-            // FIXME: implement me.
+        public EBDictDict(File catalogFile) throws Exception {
+            eBookDirectory = catalogFile.getParent();
+            try {
+                eBookDictionary = new Book(eBookDirectory);
+            } catch (EBException e) {
+                logEBError(e);
+            }
+            final int bookType = eBookDictionary.getBookType();
+            if (bookType != Book.DISC_EPWING) {
+                throw new Exception("EPWING: Invalid type of dictionary");
+            }
+            subBooks = eBookDictionary.getSubBooks();
         }
 
-        /**
-         * begin roman alphabet
-         */
-        @Override
-        public void beginNarrow() {
-            narrow = true;
-        }
-
-        /**
-         * end roman alphabet
-         */
-        @Override
-        public void endNarrow() {
-            narrow = false;
-        }
-
-        /**
-         * begin subscript
-         */
-        @Override
-        public void beginSubscript() {
-            output.append("<sub>");
-        }
-
-        /**
-         * end subscript
-         */
-        @Override
-        public void endSubscript() {
-            output.append("</sub>");
-        }
-
-        /**
-         * begin super script
-         */
-        @Override
-        public void beginSuperscript() {
-            output.append("<sup>");
-        }
-
-        /**
-         * end super script
-         */
-        @Override
-        public void endSuperscript() {
-            output.append("</sup>");
-        }
-
-        /**
-         * set indent of line head
+        /*
+         * (non-Javadoc)
          * 
-         * @param len 
+         * @see org.omegat.core.dictionaries.IDictionary#readArticle(java.lang.
+         * String, java.lang.Object)
+         * 
+         * Returns not the raw text, but the formatted article ready for
+         * upstream use (\n replaced with <br>, etc.
          */
         @Override
-        public void setIndent(int len) {
-            for (int i = 0 ; i<len; i++ ) {
-                output.append("&nbsp;");
-            }
-        }
+        public List<DictionaryEntry> readArticles(String word) {
+            Searcher sh;
+            Result searchResult;
+            Hook<String> hook;
+            String article;
+            List<DictionaryEntry> result = new ArrayList<DictionaryEntry>();
 
-        /**
-         * insert new line.
-         */
-        @Override
-        public void newLine() {
-            output.append("<br>");
-            lineNum++;
-        }
-
-        /**
-         * set no break
-         */
-        @Override
-        public void beginNoNewLine() {
-            // FIXME: implement me.
-        }
-        @Override
-        public void endNoNewLine() {
-            // FIXME
-        }
-
-        /**
-         * insert em tag
-         */
-        @Override
-        public void beginEmphasis() {
-            output.append("<em>");
-        }
-        @Override
-        public void endEmphasis() {
-            output.append("</em>");
-        }
-
-        /**
-         * insert decoretion
-         *
-         * @param type decoration type
-         * #BOLD
-         * #ITALIC
-         */
-        @Override
-        public void beginDecoration(int type) {
-            this.decType = type;
-            switch (decType) {
-                case BOLD:
-                    output.append("<i>");
-                    break;
-                case ITALIC:
-                    output.append("<b>");
-                    break;
-                default:
-                    output.append("<u>");
-                    break;
-            }
-        }
-
-        @Override
-        public void endDecoration() {
-             switch (decType) {
-                case BOLD:
-                    output.append("</i>");
-                    break;
-                case ITALIC:
-                    output.append("</b>");
-                    break;
-                default:
-                    output.append("</u>");
-                    break;
-            }
-        }
-
-        /**
-         * convert Zenkaku alphabet to Hankaku
-         *
-         * convert (\uFF01 - \uFF5E) to (\u0021- \u007E)
-         *     and \u3000 to \u0020
-         *
-         * @param text
-         * @return String converted
-        */
-        public String convertZen2Han(String text) {
-            StringBuilder result = new StringBuilder(text.length());
-            for (int i = 0; i < text.length(); i++ ) {
-                int cp = text.codePointAt(i);
-                if (0xFF00 < cp && cp < 0xFF5F) {
-                    result.append((char)(cp-0xFEE0));
-                } else if (cp == 0x3000) {
-                    result.append("\u0020");
-                } else {
-                    result.append(cp);
+            for (SubBook sb : subBooks) {
+                if (sb.hasExactwordSearch()) {
+                    try {
+                        hook = new EBDictStringHook(sb);
+                        sh = sb.searchExactword(word);
+                        while ((searchResult = sh.getNextResult()) != null) {
+                            article = searchResult.getText(hook);
+                            result.add(new DictionaryEntry(word, article));
+                        }
+                    } catch (EBException e) {
+                        logEBError(e);
+                    }
                 }
             }
-            return result.toString();
+
+            return result;
+        }
+
+        public class EBDictStringHook extends HookAdapter<String> {
+
+            private static final int MAX_LINES = 20;
+            private StringBuffer output = new StringBuffer(2048);
+            private SubBook subBook;
+            private int lineNum;
+            private boolean narrow = false;
+            private int decType;
+
+            public EBDictStringHook(SubBook book) {
+                super();
+                subBook = book;
+                lineNum = 0;
+            }
+
+            /**
+             * clear output line
+             */
+            @Override
+            public void clear() {
+                output.delete(0, output.length());
+                lineNum = 0;
+            }
+
+            /*
+             * get result string
+             */
+            @Override
+            public String getObject() {
+                return output.toString();
+            }
+
+            /*
+             * Can accept more input?
+             */
+            @Override
+            public boolean isMoreInput() {
+                if (lineNum >= MAX_LINES) {
+                    return false;
+                }
+                return true;
+            }
+
+            /**
+             * Append article text.
+             *
+             * @param text
+             */
+            @Override
+            public void append(String text) {
+                if (narrow) {
+                    output.append(convertZen2Han(text));
+                } else {
+                    output.append(text);
+                }
+            }
+
+            /**
+             * Append GAIJI text(bitmap)
+             *
+             * @param code gaiji code referenced to bitmap gliff image
+             */
+            @Override
+            public void append(int code) {
+                // FIXME: implement me.
+            }
+
+            /**
+             * begin roman alphabet
+             */
+            @Override
+            public void beginNarrow() {
+                narrow = true;
+            }
+
+            /**
+             * end roman alphabet
+             */
+            @Override
+            public void endNarrow() {
+                narrow = false;
+            }
+
+            /**
+             * begin subscript
+             */
+            @Override
+            public void beginSubscript() {
+                output.append("<sub>");
+            }
+
+            /**
+             * end subscript
+             */
+            @Override
+            public void endSubscript() {
+                output.append("</sub>");
+            }
+
+            /**
+             * begin super script
+             */
+            @Override
+            public void beginSuperscript() {
+                output.append("<sup>");
+            }
+
+            /**
+             * end super script
+             */
+            @Override
+            public void endSuperscript() {
+                output.append("</sup>");
+            }
+
+            /**
+             * set indent of line head
+             *
+             * @param len
+             */
+            @Override
+            public void setIndent(int len) {
+                for (int i = 0; i < len; i++) {
+                    output.append("&nbsp;");
+                }
+            }
+
+            /**
+             * insert new line.
+             */
+            @Override
+            public void newLine() {
+                output.append("<br>");
+                lineNum++;
+            }
+
+            /**
+             * set no break
+             */
+            @Override
+            public void beginNoNewLine() {
+                // FIXME: implement me.
+            }
+
+            @Override
+            public void endNoNewLine() {
+                // FIXME
+            }
+
+            /**
+             * insert em tag
+             */
+            @Override
+            public void beginEmphasis() {
+                output.append("<em>");
+            }
+
+            @Override
+            public void endEmphasis() {
+                output.append("</em>");
+            }
+
+            /**
+             * insert decoretion
+             *
+             * @param type decoration type #BOLD #ITALIC
+             */
+            @Override
+            public void beginDecoration(int type) {
+                this.decType = type;
+                switch (decType) {
+                    case BOLD:
+                        output.append("<i>");
+                        break;
+                    case ITALIC:
+                        output.append("<b>");
+                        break;
+                    default:
+                        output.append("<u>");
+                        break;
+                }
+            }
+
+            @Override
+            public void endDecoration() {
+                switch (decType) {
+                    case BOLD:
+                        output.append("</i>");
+                        break;
+                    case ITALIC:
+                        output.append("</b>");
+                        break;
+                    default:
+                        output.append("</u>");
+                        break;
+                }
+            }
+
+            /**
+             * convert Zenkaku alphabet to Hankaku
+             *
+             * convert (\uFF01 - \uFF5E) to (\u0021- \u007E) and \u3000 to \u0020
+             *
+             * @param text
+             * @return String converted
+             */
+            public String convertZen2Han(String text) {
+                StringBuilder result = new StringBuilder(text.length());
+                for (int i = 0; i < text.length(); i++) {
+                    int cp = text.codePointAt(i);
+                    if (0xFF00 < cp && cp < 0xFF5F) {
+                        result.append((char) (cp - 0xFEE0));
+                    } else if (cp == 0x3000) {
+                        result.append("\u0020");
+                    } else {
+                        result.append(cp);
+                    }
+                }
+                return result.toString();
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+/.jacocoverage
 /build
 /dist
+/dist2
 /nbproject/private

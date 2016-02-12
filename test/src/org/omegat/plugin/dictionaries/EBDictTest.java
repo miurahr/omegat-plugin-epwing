@@ -3,7 +3,7 @@
           with fuzzy matching, translation memory, keyword search,
           glossaries, and translation leveraging into updated projects.
 
- Copyright (C) 2015 Hiroshi Miura
+ Copyright (C) 2015,2016 Hiroshi Miura
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
@@ -26,9 +26,12 @@
 package org.omegat.plugin.dictionaries;
 
 import java.io.File;
+import java.util.List;
 
 import org.junit.Test;
 import junit.framework.TestCase;
+import org.omegat.core.dictionaries.DictionaryEntry;
+import org.omegat.core.dictionaries.IDictionary;
 
 
 /**
@@ -41,16 +44,13 @@ public class EBDictTest extends TestCase {
     private static final String zippedDictPath = "test/data/dicts-zipped/epwing/CATALOGS";
 
     /**
-     * Test of searchExactMatch method
+     * Test of EBDict for IDictionaryFactory
      * @throws java.lang.Exception
      */
     @Test
-    public void testSearchExactMatch() throws Exception {
-        EBDict e = new EBDict(new File(dictPath));
-        String word = "Here";
-        Object result = e.searchExactMatch(word);
-        assertNotNull(result);
-        assertTrue(result instanceof String);
+    public void testEBDict() throws Exception {
+        EBDict e = new EBDict();
+        assertTrue(e.isSupportedFile(new File(dictPath)));
     }
 
     /**
@@ -59,11 +59,14 @@ public class EBDictTest extends TestCase {
      */
     @Test
     public void testReadArticle() throws Exception {
-        EBDict e = new EBDict(new File(dictPath));
+        EBDict e = new EBDict();
+        IDictionary dict = e.loadDict(new File(dictPath));
         String word = "Tokyo";
-        Object data = e.searchExactMatch(word);
-        String result = e.readArticle(word, data);
-        assertEquals("&nbsp;Tokyo<br>&nbsp;&nbsp;\u6771\u4eac<br>&nbsp;", result);
+        List<DictionaryEntry> result = dict.readArticles(word);
+        for (DictionaryEntry ent: result) {
+            assertEquals("&nbsp;Tokyo<br>&nbsp;&nbsp;\u6771\u4eac<br>&nbsp;",
+                   ent.getArticle());
+        }
     }
 
     /**
@@ -72,10 +75,13 @@ public class EBDictTest extends TestCase {
      */
     @Test
     public void testEBZipReadArticle() throws Exception {
-        EBDict e = new EBDict(new File(zippedDictPath));
+        EBDict e = new EBDict();
+        IDictionary dict = e.loadDict(new File(zippedDictPath));
         String word = "Tokyo";
-        Object data = e.searchExactMatch(word);
-        String result = e.readArticle(word, data);
-        assertEquals("&nbsp;Tokyo<br>&nbsp;&nbsp;\u6771\u4eac<br>&nbsp;", result);
+        List<DictionaryEntry> result = dict.readArticles(word);
+        for (DictionaryEntry ent: result) {
+            assertEquals("&nbsp;Tokyo<br>&nbsp;&nbsp;\u6771\u4eac<br>&nbsp;",
+                    ent.getArticle());
+        }
     }
 }

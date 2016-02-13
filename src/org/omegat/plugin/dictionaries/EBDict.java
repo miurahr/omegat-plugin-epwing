@@ -40,10 +40,11 @@ import fuku.eb4j.hook.Hook;
 import fuku.eb4j.hook.HookAdapter;
 
 import org.omegat.core.Core;
+import org.omegat.core.CoreEvents;
 import org.omegat.core.dictionaries.DictionaryEntry;
 import org.omegat.core.dictionaries.IDictionary;
 import org.omegat.core.dictionaries.IDictionaryFactory;
-import org.omegat.gui.dictionaries.IDictionaries;
+import org.omegat.core.events.IApplicationEventListener;
 
 /**
  * EPWING dictionary
@@ -53,12 +54,7 @@ import org.omegat.gui.dictionaries.IDictionaries;
 public class EBDict implements IDictionaryFactory {
 
     public static void loadPlugins() {
-        IDictionaries di= Core.getDictionaries();
-        if (di != null) {
-            di.addDictionaryFactory(new EBDict());
-        } else {
-            System.out.println("EBDict: loadPlugins failed because Core.getDictionaries() returns null!");
-        }
+        CoreEvents.registerApplicationEventListener(new EBDictApplicationEventListener());
     }
 
     public static void unloadPlugins() {
@@ -72,6 +68,17 @@ public class EBDict implements IDictionaryFactory {
     @Override
     public IDictionary loadDict(File file) throws Exception {
         return new EBDictDict(file);
+    }
+
+    static class EBDictApplicationEventListener implements IApplicationEventListener {
+        @Override
+        public void onApplicationStartup() {
+            Core.getDictionaries().addDictionaryFactory(new EBDict());
+        }
+
+        @Override
+        public void onApplicationShutdown() {
+        }
     }
 
     static class EBDictDict implements IDictionary {

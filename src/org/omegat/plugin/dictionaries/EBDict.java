@@ -53,12 +53,7 @@ import org.omegat.gui.dictionaries.IDictionaries;
 public class EBDict implements IDictionaryFactory {
 
     public static void loadPlugins() {
-        IDictionaries di= Core.getDictionaries();
-        if (di != null) {
-            di.addDictionaryFactory(new EBDict());
-        } else {
-            System.out.println("EBDict: loadPlugins failed because Core.getDictionaries() returns null!");
-        }
+        Core.registerDictionaryClass(EBDict.class);
     }
 
     public static void unloadPlugins() {

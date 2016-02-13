@@ -41,4 +41,5 @@ public class Core {
       public static IDictionaries getDictionaries() {
           return null;
       }
+      public static void registerDictionaryClass(Class<? extends IDictionaryFactory> clazz) {}
 }

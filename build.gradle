@@ -1,0 +1,125 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'findbugs'
+apply plugin: 'checkstyle'
+apply plugin: 'distribution'
+apply plugin: 'maven'
+
+version = '1.1'
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+        test.compileClasspath += configurations.provided
+        test.runtimeClasspath += configurations.provided
+    }
+}
+
+repositories {
+    maven {
+        url "https://dl.bintray.com/omegat-org/maven"
+    }
+    jcenter()
+}
+
+dependencies {
+    compile  'org.slf4j:slf4j-api:1.7.21'
+    compile fileTree(dir: 'lib', include: "**/*.jar")
+    provided 'org.omegat:omegat:4.0.0-02'
+    provided 'commons-io:commons-io:2.4'
+    provided 'commons-lang:commons-lang:2.6'
+    provided 'org.slf4j:slf4j-nop:1.5.10'
+    testCompile 'junit:junit:4.12'
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+}
+
+// Build FatJar
+//
+// It is easy to install a 3rd-party OmegaT plugin which is
+// a single jar file, because all user should do is just to put the jar
+// file into plugins directory.
+jar {
+    from files(sourceSets.main.output.classesDir)
+    from {configurations.compile.collect {zipTree(it)}} {
+        exclude "META-INF/MANIFEST.MF"
+    }
+    manifest {
+        // plugin's main class name is defined in gradle.properties file.
+        attributes("OmegaT-Plugins": pluginMainClass)
+    }
+}
+
+checkstyle {
+    config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    ignoreFailures = true
+    toolVersion = '7.1'
+}
+tasks.checkstyleMain.setGroup('Verification')
+
+// Force prevent checkstyle/findbugs on Test.
+task checkstyleTest(overwrite: true) << {}
+task findbugsTest(overwrite: true) << {}
+
+// Treat findbugs failure as warning
+findbugs {
+    ignoreFailures = true
+}
+tasks.withType(FindBugs) {
+    reports {
+      xml.enabled = false
+      html.enabled = true
+    }
+    setGroup('Verification')
+}
+
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+javadoc {
+    classpath += configurations.provided
+    options.locale = 'en_US'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+}
+
+distTar {
+  compression = Compression.GZIP
+}
+
+distributions {
+    main {
+        contents {
+            from('README.md', 'COPYING')
+            into('docs') {
+                from 'CHANGELOG.md'
+            }
+            from(sourceJar) {
+                into 'source'
+            }
+            from(jar) {
+                into 'plugin'
+            }
+        }
+    }
+}
+

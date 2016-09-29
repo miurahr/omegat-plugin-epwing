@@ -1,5 +1,5 @@
-/.jacocoverage
-/build
-/dist
-/dist2
-/nbproject/private
+build
+.idea
+nbproject
+.gradle
+.nb-gradle

@@ -3,7 +3,7 @@
           with fuzzy matching, translation memory, keyword search,
           glossaries, and translation leveraging into updated projects.
 
- Copyright (C) 2009 Alex Buloichik
+ Copyright (C) 2016 Hiroshi Miura
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
@@ -23,27 +23,3 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************/
 
-package org.omegat.core.dictionaries;
-
-/**
- * Class for store one dictionary entry.
- * 
- * @author Alex Buloichik (alex73mail@gmail.com)
- */
-public class DictionaryEntry {
-    private final String word;
-    private final String article;
-
-    public DictionaryEntry(final String word, final String article) {
-        this.word = word;
-        this.article = article;
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public String getArticle() {
-        return article;
-    }
-}

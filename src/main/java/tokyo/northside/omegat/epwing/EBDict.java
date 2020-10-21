@@ -81,7 +81,7 @@ class EBDict implements IDictionary {
         return result;
     }
 
-    public class EBDictStringHook extends HookAdapter<String> {
+    public static class EBDictStringHook extends HookAdapter<String> {
 
         private static final int MAX_LINES = 20;
         private StringBuffer output = new StringBuffer(2048);

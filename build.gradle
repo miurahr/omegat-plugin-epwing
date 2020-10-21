@@ -1,23 +1,22 @@
-apply plugin: 'java'
-apply plugin: 'jacoco'
-apply plugin: 'findbugs'
-apply plugin: 'checkstyle'
-apply plugin: 'distribution'
-apply plugin: 'maven'
-
-version = '1.1'
-
-configurations {
-    provided
+plugins {
+    id 'java'
+    id 'groovy'
+    id "com.github.spotbugs" version "3.0.0"
+    id 'checkstyle'
+    id 'com.diffplug.gradle.spotless' version '3.27.1'
+    id 'distribution'
+    id 'jacoco'
+    id 'maven'
 }
 
-sourceSets {
-    main {
-        compileClasspath += configurations.provided
-        test.compileClasspath += configurations.provided
-        test.runtimeClasspath += configurations.provided
-    }
+version = '1.2'
+
+ext {
+    javaVersion = '1.8'
 }
+
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
 
 repositories {
     maven {
@@ -27,99 +26,72 @@ repositories {
 }
 
 dependencies {
-    compile  'org.slf4j:slf4j-api:1.7.21'
+    compile 'org.slf4j:slf4j-api:1.7.25'
     compile fileTree(dir: 'lib', include: "**/*.jar")
-    provided 'org.omegat:omegat:4.0.0-02'
-    provided 'commons-io:commons-io:2.4'
-    provided 'commons-lang:commons-lang:2.6'
-    provided 'org.slf4j:slf4j-nop:1.5.10'
-    testCompile 'junit:junit:4.12'
+    compileOnly 'org.omegat:omegat:5.2.0'
+    compileOnly 'commons-io:commons-io:2.7'
+    compileOnly 'commons-lang:commons-lang:2.6'
+    compileOnly 'org.slf4j:slf4j-nop:1.7.25'
+    testImplementation 'org.omegat:omegat:5.2.0'
+    testImplementation 'commons-io:commons-io:2.5'
+    testImplementation 'commons-lang:commons-lang:2.6'
+    testImplementation 'junit:junit:4.13'
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
 }
 
-tasks.withType(JavaCompile) {
-    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
-}
-
-// Build FatJar
-//
-// It is easy to install a 3rd-party OmegaT plugin which is
-// a single jar file, because all user should do is just to put the jar
-// file into plugins directory.
 jar {
-    from files(sourceSets.main.output.classesDir)
-    from {configurations.compile.collect {zipTree(it)}} {
-        exclude "META-INF/MANIFEST.MF"
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
     manifest {
-        // plugin's main class name is defined in gradle.properties file.
-        attributes("OmegaT-Plugins": pluginMainClass)
+        attributes("OmegaT-Plugins": "tokyo.northside.omegat.plugin.EBDict")
     }
 }
 
-checkstyle {
-    config = resources.text.fromFile("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
-    ignoreFailures = true
-    toolVersion = '7.1'
-}
-tasks.checkstyleMain.setGroup('Verification')
-
-// Force prevent checkstyle/findbugs on Test.
-task checkstyleTest(overwrite: true) << {}
-task findbugsTest(overwrite: true) << {}
-
-// Treat findbugs failure as warning
-findbugs {
-    ignoreFailures = true
-}
-tasks.withType(FindBugs) {
-    reports {
-      xml.enabled = false
-      html.enabled = true
+spotless {
+    enforceCheck false
+    java {
+        removeUnusedImports()
     }
-    setGroup('Verification')
 }
 
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
+task changedOnBranch {
+    description = 'List files that have been modified on this git branch.'
+    doLast {
+        ext.files = project.files(gitModifiedFiles())
+        ext.files.each { println(it) }
+    }
 }
 
-javadoc {
-    classpath += configurations.provided
-    options.locale = 'en_US'
+task spotlessChangedApply {
+    description = 'Apply code formatting to files that have been changed on the current branch.'
+    finalizedBy 'spotlessApply'
+    dependsOn changedOnBranch
+    doFirst {
+        spotlessJava.target = changedOnBranch.files.findAll {
+            it.path.endsWith('.java')
+        }
+    }
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+tasks.withType(com.github.spotbugs.SpotBugsTask) {
+    ignoreFailures = true
 }
-
 
 artifacts {
     archives jar
-    archives sourceJar
-    archives javadocJar
 }
 
 distTar {
   compression = Compression.GZIP
 }
 
+
 distributions {
     main {
         contents {
-            from('README.md', 'COPYING')
-            into('docs') {
-                from 'CHANGELOG.md'
-            }
-            from(sourceJar) {
-                into 'source'
-            }
-            from(jar) {
-                into 'plugin'
-            }
+            from(jar)
+            from('README.md', 'COPYING', 'CHANGELOG.md')
         }
     }
 }
-

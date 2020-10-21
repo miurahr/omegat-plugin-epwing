@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 
 ### Add
 
+* CI/CD: github actions scripts
+
 ### Changed
+
+* move package to `tokyo.northside.omegat`
+* change gradle version to 6.6.1
+* bump dependencies versions.
 
 ### Fixed
 

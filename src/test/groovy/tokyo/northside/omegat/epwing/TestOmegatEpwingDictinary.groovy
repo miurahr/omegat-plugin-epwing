@@ -1,8 +1,8 @@
 package tokyo.northside.omegat.epwing
 
-import org.testng.annotations.Test
+import static org.junit.Assert.assertTrue;;
 
-import static org.testng.Assert.*
+import org.junit.Test;
 
 
 class TestOmegatEpwingDictinary {

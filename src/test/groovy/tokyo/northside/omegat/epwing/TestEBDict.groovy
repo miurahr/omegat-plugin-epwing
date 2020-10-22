@@ -1,9 +1,8 @@
 package tokyo.northside.omegat.epwing
 
-import org.testng.annotations.Test
+import static org.junit.Assert.*;
 
-import static org.testng.Assert.*
-
+import org.junit.Test;
 
 class TestEBDict {
 
@@ -14,11 +13,10 @@ class TestEBDict {
         assertNotNull(ebdict)
     }
 
-    @Test
-    void testEBDictConstructorWrongFile() {
+    @Test(expected = Exception.class)
+    void testEBDictConstructorWrongFile() throws Exception {
         def file = new File("src/test/resources/data/dicts/CATALOGS")
-        def ebdict = new EBDict(file)
-        assertNull(ebdict)
+        new EBDict(file)
     }
 
     @Test

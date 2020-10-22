@@ -1,6 +1,10 @@
 package tokyo.northside.omegat.epwing;
 
-import fuku.eb4j.*;
+import fuku.eb4j.Book;
+import fuku.eb4j.EBException;
+import fuku.eb4j.Result;
+import fuku.eb4j.Searcher;
+import fuku.eb4j.SubBook;
 import fuku.eb4j.hook.Hook;
 import fuku.eb4j.hook.HookAdapter;
 import org.omegat.core.dictionaries.DictionaryEntry;
@@ -11,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 class EBDict implements IDictionary {
 
@@ -38,6 +43,7 @@ class EBDict implements IDictionary {
             eBookDictionary = new Book(eBookDirectory);
         } catch (EBException e) {
             logEBError(e);
+            throw new Exception("EPWING: There is no supported dictionary");
         }
         final int bookType = eBookDictionary.getBookType();
         if (bookType != Book.DISC_EPWING) {

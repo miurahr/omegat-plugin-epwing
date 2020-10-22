@@ -37,7 +37,20 @@ dependencies {
     testImplementation 'commons-io:commons-io:2.5'
     testImplementation 'commons-lang:commons-lang:2.6'
     testImplementation "org.codehaus.groovy:groovy-all:3.0.1"
-    testImplementation 'org.testng:testng:6.9.10'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.0'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.0'
+}
+
+jacoco {
+    toolVersion = '0.8.6'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
 }
 
 jar {
@@ -76,13 +89,6 @@ task spotlessChangedApply {
         spotlessJava.target = changedOnBranch.files.findAll {
             it.path.endsWith('.java')
         }
-    }
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled = true // coveralls plugin depends on xml format report
-        html.enabled = true
     }
 }
 

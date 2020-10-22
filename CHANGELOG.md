@@ -5,15 +5,26 @@ All notable changes to this project will be documented in this file.
 
 ### Add
 
-* CI/CD: github actions scripts
+### Changed
+
+### Fixed
+
+
+## [v2.0.0]
+
+### Add
+
+* CI/CD: github actions scripts to automate test and release.
+* Add unit tests.
+* Add coveralls coverage monitor.
 
 ### Changed
 
-* move package to `tokyo.northside.omegat`
+* Semantic versioning.
+* move package path to `tokyo.northside.omegat`
 * change gradle version to 6.6.1
-* bump dependencies versions.
+* Bump dependencies versions.
 
-### Fixed
 
 ## [v1.1]
 ### Changed

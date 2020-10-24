@@ -1,2 +1,0 @@
-eb4j-core-1.0.5.jar is distributed under the GNU Lesser General Public License
-version 2.1. Sources are available in the plugin sources, in the directory lib/sources

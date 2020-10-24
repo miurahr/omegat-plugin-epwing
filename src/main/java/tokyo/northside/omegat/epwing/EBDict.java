@@ -1,12 +1,12 @@
 package tokyo.northside.omegat.epwing;
 
-import fuku.eb4j.Book;
-import fuku.eb4j.EBException;
-import fuku.eb4j.Result;
-import fuku.eb4j.Searcher;
-import fuku.eb4j.SubBook;
-import fuku.eb4j.hook.Hook;
-import fuku.eb4j.hook.HookAdapter;
+import io.github.eb4j.Book;
+import io.github.eb4j.EBException;
+import io.github.eb4j.Result;
+import io.github.eb4j.Searcher;
+import io.github.eb4j.SubBook;
+import io.github.eb4j.hook.Hook;
+import io.github.eb4j.hook.HookAdapter;
 import org.omegat.core.dictionaries.DictionaryEntry;
 import org.omegat.core.dictionaries.IDictionary;
 

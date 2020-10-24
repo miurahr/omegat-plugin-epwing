@@ -23,12 +23,15 @@ repositories {
     maven {
         url "https://dl.bintray.com/omegat-org/maven"
     }
+    maven {
+        url "https://dl.bintray.com/eb4j/maven/"
+    }
     jcenter()
 }
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.25'
-    compile fileTree(dir: 'lib', include: "**/*.jar")
+    implementation 'io.github.eb4j:eb4j:1.99.3'
     compileOnly 'org.omegat:omegat:5.2.0'
     compileOnly 'commons-io:commons-io:2.7'
     compileOnly 'commons-lang:commons-lang:2.6'

@@ -31,7 +31,7 @@ repositories {
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.25'
-    implementation 'io.github.eb4j:eb4j:1.99.3'
+    compile 'io.github.eb4j:eb4j:2.0.0'
     compileOnly 'org.omegat:omegat:5.2.0'
     compileOnly 'commons-io:commons-io:2.7'
     compileOnly 'commons-lang:commons-lang:2.6'
@@ -61,7 +61,7 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
     manifest {
-        attributes("OmegaT-Plugins": "tokyo.northside.omegat.epwing.OmegaTEpwingDictionary")
+        attributes("OmegaT-Plugins": "tokyo.northside.omegat.epwing.OmegatEpwingDictionary")
     }
 }
 

@@ -47,6 +47,7 @@ All notable changes to this project will be documented in this file.
 ### Add
 - First working release.
 
-[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.1...HEAD
+[v2.0.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/miurahr/omegat-plugin-epwing/compare/v1.1...v2.0.0
 [v1.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v1.0...v1.1

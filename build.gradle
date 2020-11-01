@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'groovy'
-//    id "com.github.spotbugs" version "4.5.1"
+    id "com.github.spotbugs" version "4.5.1"
     id 'checkstyle'
     id 'com.diffplug.gradle.spotless' version '3.27.1'
     id 'distribution'
@@ -65,9 +65,9 @@ jar {
     }
 }
 
-//spotbugs {
-//  toolVersion = '4.1.4'
-//}
+spotbugs {
+  toolVersion = '4.1.4'
+}
 
 spotless {
     enforceCheck false

@@ -19,8 +19,8 @@ import java.util.logging.Logger;
 
 class EBDict implements IDictionary {
 
-    private String eBookDirectory = null;
-    private Book eBookDictionary = null;
+    private String eBookDirectory;
+    private Book eBookDictionary;
     private SubBook[] subBooks;
     private static final Logger LOG = Logger.getLogger(OmegatEpwingDictionary.class.getName());
 
@@ -67,12 +67,12 @@ class EBDict implements IDictionary {
         Result searchResult;
         Hook<String> hook;
         String article;
-        List<DictionaryEntry> result = new ArrayList<DictionaryEntry>();
+        List<DictionaryEntry> result = new ArrayList<>();
 
         for (SubBook sb : subBooks) {
             if (sb.hasExactwordSearch()) {
                 try {
-                    hook = new EBDictStringHook(sb);
+                    hook = new EBDictStringHook();
                     sh = sb.searchExactword(word);
                     while ((searchResult = sh.getNextResult()) != null) {
                         article = searchResult.getText(hook);
@@ -91,15 +91,12 @@ class EBDict implements IDictionary {
 
         private static final int MAX_LINES = 20;
         private StringBuffer output = new StringBuffer(2048);
-        private SubBook subBook;
-        private int lineNum;
+        private int lineNum = 0;
         private boolean narrow = false;
         private int decType;
 
-        public EBDictStringHook(SubBook book) {
+        public EBDictStringHook() {
             super();
-            subBook = book;
-            lineNum = 0;
         }
 
         /**

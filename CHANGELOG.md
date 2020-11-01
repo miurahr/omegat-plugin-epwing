@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 * Fix plugin load error.
-* Fix plugin pakcage.
+* Fix plugin package.
 
 
 ## [v2.0.0]

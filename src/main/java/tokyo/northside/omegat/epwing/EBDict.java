@@ -141,6 +141,16 @@ class EBDict implements IDictionary {
         }
 
         /**
+         * append character
+         *
+         * @param ch character
+         */
+        @Override
+        public void append(final char ch) {
+            append(Character.toString(ch));
+        }
+
+        /**
          * Append article text.
          *
          * @param text
@@ -325,6 +335,14 @@ class EBDict implements IDictionary {
             }
         }
 
+        @Override
+        public void beginUnicode() {
+        }
+
+        @Override
+        public void endUnicode() {
+        }
+
         /**
          * Convert XBM image to lossless WebP and convert to Base64 String.
          *
@@ -381,7 +399,7 @@ class EBDict implements IDictionary {
                 } else if (cp == 0x3000) {
                     result.append("\u0020");
                 } else {
-                    result.append(cp);
+                    result.appendCodePoint(cp);
                 }
             }
             return result.toString();

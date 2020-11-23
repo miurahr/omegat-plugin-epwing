@@ -24,7 +24,7 @@ class TestEBDict {
         def file = new File("src/test/resources/data/dicts/epwing/CATALOGS")
         def ebdict = new EBDict(file)
         def entries = ebdict.readArticles("Tokyo")
-        entries.each {
+        for (it in entries) {
             def word = it.getWord()
             assertEquals(word, "Tokyo")
         }

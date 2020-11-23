@@ -95,7 +95,7 @@ class EBDict implements IDictionary {
     public static class EBDictStringHook extends HookAdapter<String> {
 
         private static int _maxlines;
-        private final StringBuffer output = new StringBuffer(9068);
+        private StringBuffer output = new StringBuffer(16384);
         private int lineNum = 0;
         private boolean narrow = false;
         private int decType;
@@ -138,6 +138,16 @@ class EBDict implements IDictionary {
         @Override
         public boolean isMoreInput() {
             return lineNum < _maxlines;
+        }
+
+        /**
+         * append character
+         *
+         * @param ch character
+         */
+        @Override
+        public void append(final char ch) {
+            append(Character.toString(ch));
         }
 
         /**
@@ -325,6 +335,14 @@ class EBDict implements IDictionary {
             }
         }
 
+        @Override
+        public void beginUnicode() {
+        }
+
+        @Override
+        public void endUnicode() {
+        }
+
         /**
          * Convert XBM image to lossless WebP and convert to Base64 String.
          *
@@ -381,7 +399,7 @@ class EBDict implements IDictionary {
                 } else if (cp == 0x3000) {
                     result.append("\u0020");
                 } else {
-                    result.append(cp);
+                    result.appendCodePoint(cp);
                 }
             }
             return result.toString();

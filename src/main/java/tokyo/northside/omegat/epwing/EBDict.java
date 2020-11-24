@@ -94,7 +94,7 @@ class EBDict implements IDictionary {
 
     public static class EBDictStringHook extends HookAdapter<String> {
 
-        private static int _maxlines;
+        private int _maxlines;
         private StringBuffer output = new StringBuffer(16384);
         private int lineNum = 0;
         private boolean narrow = false;

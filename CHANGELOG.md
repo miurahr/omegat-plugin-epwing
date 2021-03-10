@@ -5,9 +5,14 @@ All notable changes to this project will be documented in this file.
 
 ### Add
 
+* Set plugin metadata
+
 ### Changed
 
-### Fixed
+* Update dependency to EB4J 2.1.1
+* Gradle: Migrate to Kotlin DSL
+* Gradle: Use Gradle's OmegaT plugin v1.4.2
+* Auto versioning with Git tag
 
 ## [v2.0.2]
 

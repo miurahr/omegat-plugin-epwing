@@ -1,6 +1,13 @@
 package tokyo.northside.omegat.epwing;
 
-import io.github.eb4j.*;
+import io.github.eb4j.Book;
+import io.github.eb4j.EBException;
+import io.github.eb4j.ExtFont;
+import io.github.eb4j.Result;
+import io.github.eb4j.Searcher;
+import io.github.eb4j.SubAppendix;
+import io.github.eb4j.SubBook;
+import io.github.eb4j.ext.UnicodeMap;
 import io.github.eb4j.hook.Hook;
 import io.github.eb4j.hook.HookAdapter;
 import io.github.eb4j.util.HexUtil;
@@ -55,6 +62,7 @@ class EBDict implements IDictionary {
             throw new Exception("EPWING: Invalid type of dictionary");
         }
         subBooks = eBookDictionary.getSubBooks();
+
     }
 
     /*
@@ -94,14 +102,15 @@ class EBDict implements IDictionary {
 
     public static class EBDictStringHook extends HookAdapter<String> {
 
-        private int _maxlines;
-        private StringBuffer output = new StringBuffer(16384);
+        private final int _maxlines;
+        private final StringBuffer output = new StringBuffer(16384);
         private int lineNum = 0;
         private boolean narrow = false;
         private int decType;
         private final SubAppendix _appendix;
         private final ExtFont _extFont;
         private final Base64.Encoder _base64Encoder;
+        private UnicodeMap unicodeMap;
 
         public EBDictStringHook(final SubBook sb) {
             this(sb, 500);
@@ -113,6 +122,13 @@ class EBDict implements IDictionary {
             _extFont = sb.getFont();
             _maxlines = lines;
             _base64Encoder = Base64.getEncoder();
+            String title = sb.getTitle();
+            try {
+                unicodeMap = new UnicodeMap(title, new File(sb.getBook().getPath()));
+            } catch (EBException e) {
+                unicodeMap = null;
+                logEBError(e);
+            }
         }
 
         /**
@@ -153,7 +169,7 @@ class EBDict implements IDictionary {
         /**
          * Append article text.
          *
-         * @param text
+         * @param text string to append
          */
         @Override
         public void append(String text) {
@@ -172,31 +188,28 @@ class EBDict implements IDictionary {
         @Override
         public void append(int code) {
             String str = null;
-            if (narrow) {
-                if (_appendix != null) {
-                    try {
-                        str = _appendix.getNarrowFontAlt(code);
-                    } catch (EBException e) {
+            if (unicodeMap != null) {
+                str = unicodeMap.get(code);
+            }
+            if (StringUtils.isBlank(str)) {
+                if (narrow) {
+                    if (_appendix != null) {
+                        try {
+                            str = _appendix.getNarrowFontAlt(code);
+                        } catch (EBException e) {
+                        }
                     }
-                }
-                if (StringUtils.isBlank(str)) {
-                    try {
-                        str = convert2Image(_extFont.getNarrowFont(code), _extFont.getFontHeight(), _extFont.getNarrowFontWidth());
-                    } catch (EBException | IOException e) {
+                    if (StringUtils.isBlank(str)) {
                         str = "[GAIJI=n" + HexUtil.toHexString(code) + "]";
                     }
-                }
-            } else {
-                if (_appendix != null) {
-                    try {
-                        str = _appendix.getWideFontAlt(code);
-                    } catch (EBException e) {
+                } else {
+                    if (_appendix != null) {
+                        try {
+                            str = _appendix.getWideFontAlt(code);
+                        } catch (EBException e) {
+                        }
                     }
-                }
-                if (StringUtils.isBlank(str)) {
-                    try {
-                        str = convert2Image(_extFont.getWideFont(code), _extFont.getFontHeight(), _extFont.getWideFontWidth());
-                    } catch (EBException | IOException e) {
+                    if (StringUtils.isBlank(str)) {
                         str = "[GAIJI=w" + HexUtil.toHexString(code) + "]";
                     }
                 }
@@ -255,7 +268,7 @@ class EBDict implements IDictionary {
         /**
          * set indent of line head
          *
-         * @param len
+         * @param len size of indent
          */
         @Override
         public void setIndent(int len) {
@@ -300,7 +313,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * insert decoretion
+         * insert decoration
          *
          * @param type decoration type #BOLD #ITALIC
          */
@@ -362,24 +375,17 @@ class EBDict implements IDictionary {
                     }
                 }
             }
-            if (true) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(res, "bmp", baos);
-                baos.flush();
-                byte[] bytes = baos.toByteArray();
-                baos.close();
-                String str = new StringBuilder()
-                        .append("<img src=\"data:image/bmp;base64,")
-                        .append(_base64Encoder.encodeToString(bytes))
-                        .append("\"></img>")
-                        .toString();
-                return str;
-            } else {
-                // for debug
-                Path tmp = Files.createTempFile("OmegaT_dict_extFont", ".bmp");
-                ImageIO.write(res, "bmp", tmp.toFile());
-                return "<img src=\"" + tmp.toUri().toString() + "\"></img>";
-            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(res, "bmp", baos);
+            baos.flush();
+            byte[] bytes = baos.toByteArray();
+            baos.close();
+            String str = new StringBuilder()
+                    .append("<img src=\"data:image/bmp;base64,")
+                    .append(_base64Encoder.encodeToString(bytes))
+                    .append("\"></img>")
+                    .toString();
+            return str;
         }
 
         /**

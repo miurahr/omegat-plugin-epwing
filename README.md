@@ -18,7 +18,7 @@ for OmegaT is at https://github.com/miurahr/omegat-plugin-epwing/releases/
 
 Please unzip the distributed archive, and you will find a jar file and
 several documents. You should copy jar file into OmegaT plugin folder where
-it is depend on Operating systems. 
+it depends on Operating systems. 
 
 #### Linux
 

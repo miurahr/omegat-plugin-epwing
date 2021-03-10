@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 
 ### Add
 
+* Set plugin metadata
+
 ### Changed
+
+* Gradle: Migrate to Kotlin DSL
+* Gradle: Use Gradle's OmegaT plugin v1.4.2
+* Auto versioning with Git tag
 
 ### Fixed
 

@@ -30,7 +30,7 @@ omegat {
 
 repositories {
     maven {
-        url = uri("https://dl.bintray.com/eb4j/maven/")
+        url = uri("https://jitpack.io")
     }
 }
 

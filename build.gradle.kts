@@ -6,17 +6,15 @@ plugins {
     distribution
     maven
     id("org.omegat.gradle") version "1.4.2"
-    id("com.sarhanm.versioner") version "4.0.2"
     id("com.github.spotbugs") version "4.5.1"
     id("com.diffplug.gradle.spotless") version "3.27.1"
     id("com.github.kt3k.coveralls") version "2.10.2"
+    id("com.palantir.git-version") version "0.12.3"
 }
 
-versioner{
-    snapshot = false
-    omitBranchMetadata = true
-    disableHotfixVersioning = true
-}
+// Drop prefix 'v' from latest tag version.
+val gitVersion: groovy.lang.Closure<String> by extra
+version = gitVersion().substring(1)
 
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -37,10 +35,17 @@ repositories {
              password = System.getenv("GITHUB_TOKEN")
         }
     }
+    maven {
+        url = uri("https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1")
+        credentials {
+            username = System.getenv("AZURE_USER")
+            password = System.getenv("AZURE_TOKEN")
+        }
+    }
 }
 
 dependencies {
-    packIntoJar("io.github.eb4j:eb4j:2.1.4")
+    packIntoJar("io.github.eb4j:eb4j:2.1.6")
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("commons-io:commons-io:2.7")
     implementation("commons-lang:commons-lang:2.6")

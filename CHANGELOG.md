@@ -3,13 +3,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.1.0]
+
 ### Add
 
 * Set plugin metadata
+* Support GAIJI showing by Unicode alternative
 
 ### Changed
 
-* Update dependency to EB4J 2.1.1
+* Update dependency to EB4J 2.1.4
 * Gradle: Migrate to Kotlin DSL
 * Gradle: Use Gradle's OmegaT plugin v1.4.2
 * Auto versioning with Git tag
@@ -59,7 +62,8 @@ All notable changes to this project will be documented in this file.
 ### Add
 - First working release.
 
-[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.0...HEAD
+[v2.1.0]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.2...v2.1.0
 [v2.0.2]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.1...v2.0.2
 [v2.0.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/miurahr/omegat-plugin-epwing/compare/v1.1...v2.0.0

@@ -2,16 +2,28 @@ package tokyo.northside.omegat.epwing;
 
 import io.github.eb4j.Book;
 import io.github.eb4j.EBException;
+import io.github.eb4j.ExtFont;
 import io.github.eb4j.Result;
 import io.github.eb4j.Searcher;
+import io.github.eb4j.SubAppendix;
 import io.github.eb4j.SubBook;
+import io.github.eb4j.ext.UnicodeMap;
 import io.github.eb4j.hook.Hook;
 import io.github.eb4j.hook.HookAdapter;
+import io.github.eb4j.util.HexUtil;
+import org.apache.commons.lang.StringUtils;
 import org.omegat.core.dictionaries.DictionaryEntry;
 import org.omegat.core.dictionaries.IDictionary;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,9 +31,9 @@ import java.util.logging.Logger;
 
 class EBDict implements IDictionary {
 
-    private String eBookDirectory;
-    private Book eBookDictionary;
-    private SubBook[] subBooks;
+    private final String eBookDirectory;
+    private final Book eBookDictionary;
+    private final SubBook[] subBooks;
     private static final Logger LOG = Logger.getLogger(OmegatEpwingDictionary.class.getName());
 
     private static void logEBError(EBException e) {
@@ -50,6 +62,7 @@ class EBDict implements IDictionary {
             throw new Exception("EPWING: Invalid type of dictionary");
         }
         subBooks = eBookDictionary.getSubBooks();
+
     }
 
     /*
@@ -72,7 +85,7 @@ class EBDict implements IDictionary {
         for (SubBook sb : subBooks) {
             if (sb.hasExactwordSearch()) {
                 try {
-                    hook = new EBDictStringHook();
+                    hook = new EBDictStringHook(sb);
                     sh = sb.searchExactword(word);
                     while ((searchResult = sh.getNextResult()) != null) {
                         article = searchResult.getText(hook);
@@ -89,14 +102,33 @@ class EBDict implements IDictionary {
 
     public static class EBDictStringHook extends HookAdapter<String> {
 
-        private static final int MAX_LINES = 500;
-        private StringBuffer output = new StringBuffer(16384);
+        private final int _maxlines;
+        private final StringBuffer output = new StringBuffer(16384);
         private int lineNum = 0;
         private boolean narrow = false;
         private int decType;
+        private final SubAppendix _appendix;
+        private final ExtFont _extFont;
+        private final Base64.Encoder _base64Encoder;
+        private UnicodeMap unicodeMap;
 
-        public EBDictStringHook() {
+        public EBDictStringHook(final SubBook sb) {
+            this(sb, 500);
+        }
+
+        public EBDictStringHook(final SubBook sb, final int lines) {
             super();
+            _appendix = sb.getSubAppendix();
+            _extFont = sb.getFont();
+            _maxlines = lines;
+            _base64Encoder = Base64.getEncoder();
+            String title = sb.getTitle();
+            try {
+                unicodeMap = new UnicodeMap(title, new File(sb.getBook().getPath()));
+            } catch (EBException e) {
+                unicodeMap = null;
+                logEBError(e);
+            }
         }
 
         /**
@@ -121,10 +153,7 @@ class EBDict implements IDictionary {
          */
         @Override
         public boolean isMoreInput() {
-            if (lineNum >= MAX_LINES) {
-                return false;
-            }
-            return true;
+            return lineNum < _maxlines;
         }
 
         /**
@@ -140,7 +169,7 @@ class EBDict implements IDictionary {
         /**
          * Append article text.
          *
-         * @param text
+         * @param text string to append
          */
         @Override
         public void append(String text) {
@@ -154,11 +183,38 @@ class EBDict implements IDictionary {
         /**
          * Append GAIJI text(bitmap)
          *
-         * @param code gaiji code referenced to bitmap gliff image
+         * @param code gaiji code referenced to bitmap griff image
          */
         @Override
         public void append(int code) {
-            // FIXME: implement me.
+            String str = null;
+            if (unicodeMap != null) {
+                str = unicodeMap.get(code);
+            }
+            if (StringUtils.isBlank(str)) {
+                if (narrow) {
+                    if (_appendix != null) {
+                        try {
+                            str = _appendix.getNarrowFontAlt(code);
+                        } catch (EBException e) {
+                        }
+                    }
+                    if (StringUtils.isBlank(str)) {
+                        str = "[GAIJI=n" + HexUtil.toHexString(code) + "]";
+                    }
+                } else {
+                    if (_appendix != null) {
+                        try {
+                            str = _appendix.getWideFontAlt(code);
+                        } catch (EBException e) {
+                        }
+                    }
+                    if (StringUtils.isBlank(str)) {
+                        str = "[GAIJI=w" + HexUtil.toHexString(code) + "]";
+                    }
+                }
+            }
+            output.append(str);
         }
 
         /**
@@ -212,7 +268,7 @@ class EBDict implements IDictionary {
         /**
          * set indent of line head
          *
-         * @param len
+         * @param len size of indent
          */
         @Override
         public void setIndent(int len) {
@@ -257,7 +313,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * insert decoretion
+         * insert decoration
          *
          * @param type decoration type #BOLD #ITALIC
          */
@@ -298,6 +354,38 @@ class EBDict implements IDictionary {
 
         @Override
         public void endUnicode() {
+        }
+
+        /**
+         * Convert XBM image to lossless WebP and convert to Base64 String.
+         *
+         * @param data XBM data
+         * @return String Base64 encoded BMP data.
+         */
+        public String convert2Image(final byte[] data, final int height, final int width) throws IOException {
+            final BufferedImage res = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+            for (int y = 0; y < height; y++){
+                for (int x = 0; x < width; x++){
+                    int bit_pos = 1 << ((x + y * height) & 0x07);
+                    int pos = (x +  y * height) >> 3;
+                    if ((data[pos] & bit_pos) == 0) {
+                        res.setRGB(x, y, Color.WHITE.getRGB());
+                    } else {
+                        res.setRGB(x, y, Color.BLACK.getRGB());
+                    }
+                }
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(res, "bmp", baos);
+            baos.flush();
+            byte[] bytes = baos.toByteArray();
+            baos.close();
+            String str = new StringBuilder()
+                    .append("<img src=\"data:image/bmp;base64,")
+                    .append(_base64Encoder.encodeToString(bytes))
+                    .append("\"></img>")
+                    .toString();
+            return str;
         }
 
         /**

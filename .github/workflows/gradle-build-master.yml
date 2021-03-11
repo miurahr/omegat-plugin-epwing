@@ -18,6 +18,8 @@ jobs:
       name: gradle test
       with:
         arguments: test jacocoTestReport
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Coveralls Test Report
       run: ./gradlew coveralls
       env:

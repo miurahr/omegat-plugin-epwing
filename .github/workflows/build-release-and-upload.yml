@@ -18,6 +18,8 @@ jobs:
     - uses: eskatos/gradle-command-action@v1
       with:
         arguments: build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Get the version
       id: get_version
       run: |

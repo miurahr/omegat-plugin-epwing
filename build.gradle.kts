@@ -31,12 +31,16 @@ omegat {
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://jitpack.io")
+         url = uri("https://maven.pkg.github.com/eb4j/eb4j")
+         credentials {
+             username = System.getenv("GITHUB_ACTOR")
+             password = System.getenv("GITHUB_TOKEN")
+        }
     }
 }
 
 dependencies {
-    packIntoJar("com.github.eb4j:eb4j:2.1.1")
+    packIntoJar("io.github.eb4j:eb4j:2.1.4")
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("commons-io:commons-io:2.7")
     implementation("commons-lang:commons-lang:2.6")

@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.1.1]
+
+### Changed
+
+* Bump EB4J@2.1.6
+* Use gradle git-version plugin for versioning
+* Use Github or Azure packages repository for EB4J
+
 ## [v2.1.0]
 
 ### Add
@@ -62,7 +70,8 @@ All notable changes to this project will be documented in this file.
 ### Add
 - First working release.
 
-[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.1...HEAD
+[v2.1.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.0...v2.1.1
 [v2.1.0]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.2...v2.1.0
 [v2.0.2]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.1...v2.0.2
 [v2.0.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.0...v2.0.1

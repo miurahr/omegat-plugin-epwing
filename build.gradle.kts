@@ -45,7 +45,7 @@ repositories {
 }
 
 dependencies {
-    packIntoJar("io.github.eb4j:eb4j:2.1.6")
+    packIntoJar("io.github.eb4j:eb4j:2.1.8")
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("commons-io:commons-io:2.7")
     implementation("commons-lang:commons-lang:2.6")

@@ -28,18 +28,13 @@ omegat {
 
 repositories {
     mavenCentral()
-    maven {
-         url = uri("https://maven.pkg.github.com/eb4j/eb4j")
-         credentials {
-             username = System.getenv("GITHUB_ACTOR")
-             password = System.getenv("GITHUB_TOKEN")
-        }
-    }
-    maven {
-        url = uri("https://pkgs.dev.azure.com/miurahr/github/_packaging/maven/maven/v1")
-        credentials {
-            username = System.getenv("AZURE_USER")
-            password = System.getenv("AZURE_TOKEN")
+    if (System.getenv("GITHUB_TOKEN") != null) {
+        maven {
+            url = uri("https://maven.pkg.github.com/eb4j/eb4j")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }

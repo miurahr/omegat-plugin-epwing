@@ -5,6 +5,7 @@ plugins {
     jacoco
     distribution
     maven
+    id("maven-publish")
     id("org.omegat.gradle") version "1.4.2"
     id("com.github.spotbugs") version "4.5.1"
     id("com.diffplug.gradle.spotless") version "3.27.1"
@@ -12,9 +13,13 @@ plugins {
     id("com.palantir.git-version") version "0.12.3"
 }
 
-// Drop prefix 'v' from latest tag version.
-val gitVersion: groovy.lang.Closure<String> by extra
-version = gitVersion().substring(1)
+// calculate version string from git tag, hash and commit distance
+fun getVersionDetails(): com.palantir.gradle.gitversion.VersionDetails = (extra["versionDetails"] as groovy.lang.Closure<*>)() as com.palantir.gradle.gitversion.VersionDetails
+if (getVersionDetails().isCleanTag) {
+    version = getVersionDetails().lastTag.substring(1)
+} else {
+    version = getVersionDetails().lastTag.substring(1) + "-" + getVersionDetails().commitDistance + "-" + getVersionDetails().gitHash + "-SNAPSHOT"
+}
 
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -79,6 +84,38 @@ distributions {
     main {
         contents {
             from(tasks["jar"], "README.md", "CHANGELOG.md", "COPYING")
+        }
+    }
+}
+
+val pluginName = project.extra["plugin.name"]
+val pluginDescription = project.extra["plugin.description"]
+val pluginUrl = project.extra["plugin.link"]
+val pluginGroupId = "org.omegat.plugin." + project.name
+val packageUrl = "https://maven.pkg.github.com/miurahr/omegat-plugins"
+
+publishing {
+    publications {
+        create<MavenPublication>("omegatPlugin") {
+            from(components["java"])
+            groupId = pluginGroupId
+            pom.withXml {
+                asNode().apply {
+                    appendNode("name", pluginName)
+                    appendNode("description", pluginDescription)
+                    appendNode("url", pluginUrl)
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri(packageUrl)
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }

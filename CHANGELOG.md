@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.1.2]
+
+### Changed
+
+* Bump EB4J@2.1.8 from MavenCentral
+
 ## [v2.1.1]
 
 ### Changed
@@ -70,7 +76,8 @@ All notable changes to this project will be documented in this file.
 ### Add
 - First working release.
 
-[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.2...HEAD
+[v2.1.2]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.1...v2.1.2
 [v2.1.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.0...v2.1.1
 [v2.1.0]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.2...v2.1.0
 [v2.0.2]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.1...v2.0.2

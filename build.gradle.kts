@@ -47,10 +47,10 @@ repositories {
 dependencies {
     packIntoJar("io.github.eb4j:eb4j:2.1.8")
     implementation("org.slf4j:slf4j-api:1.7.25")
-    implementation("commons-io:commons-io:2.7")
+    implementation("commons-io:commons-io:2.8.0")
     implementation("commons-lang:commons-lang:2.6")
     implementation("org.slf4j:slf4j-nop:1.7.25")
-    testImplementation("commons-io:commons-io:2.5")
+    testImplementation("commons-io:commons-io:2.8.0")
     testImplementation("commons-lang:commons-lang:2.6")
     testImplementation("org.codehaus.groovy:groovy-all:3.0.8")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")

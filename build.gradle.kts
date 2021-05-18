@@ -52,7 +52,7 @@ dependencies {
     implementation("org.slf4j:slf4j-nop:1.7.25")
     testImplementation("commons-io:commons-io:2.5")
     testImplementation("commons-lang:commons-lang:2.6")
-    testImplementation("org.codehaus.groovy:groovy-all:3.0.1")
+    testImplementation("org.codehaus.groovy:groovy-all:3.0.8")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.0.0")
 }

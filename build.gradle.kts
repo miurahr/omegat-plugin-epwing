@@ -53,7 +53,7 @@ dependencies {
     testImplementation("commons-io:commons-io:2.5")
     testImplementation("commons-lang:commons-lang:2.6")
     testImplementation("org.codehaus.groovy:groovy-all:3.0.8")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
 }
 

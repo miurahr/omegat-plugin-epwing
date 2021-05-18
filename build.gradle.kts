@@ -6,7 +6,7 @@ plugins {
     distribution
     maven
     id("maven-publish")
-    id("org.omegat.gradle") version "1.4.2"
+    id("org.omegat.gradle") version "1.5.0"
     id("com.github.spotbugs") version "4.5.1"
     id("com.diffplug.gradle.spotless") version "3.27.1"
     id("com.github.kt3k.coveralls") version "2.10.2"
@@ -27,7 +27,7 @@ configure<JavaPluginConvention> {
 }
 
 omegat {
-    version = "5.4.1"
+    version = "5.4.4"
     pluginClass = "tokyo.northside.omegat.epwing.OmegatEpwingDictionary"
 }
 

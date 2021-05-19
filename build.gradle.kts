@@ -33,15 +33,6 @@ omegat {
 
 repositories {
     mavenCentral()
-    if (System.getenv("GITHUB_TOKEN") != null) {
-        maven {
-            url = uri("https://maven.pkg.github.com/eb4j/eb4j")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
 }
 
 dependencies {

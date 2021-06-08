@@ -6,7 +6,7 @@ plugins {
     distribution
     maven
     id("maven-publish")
-    id("org.omegat.gradle") version "1.5.0"
+    id("org.omegat.gradle") version "1.5.3"
     id("com.github.spotbugs") version "4.7.1"
     id("com.diffplug.spotless") version "5.12.5"
     id("com.github.kt3k.coveralls") version "2.12.0"

@@ -27,12 +27,8 @@ configure<JavaPluginConvention> {
 }
 
 omegat {
-    version = "5.4.4"
+    version = "5.5.0"
     pluginClass = "tokyo.northside.omegat.epwing.OmegatEpwingDictionary"
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
@@ -67,46 +63,10 @@ coveralls {
     jacocoReportPath = "build/reports/jacoco/test/jacocoTestReport.xml"
 }
 
-tasks.distTar {
-    compression = Compression.BZIP2
-}
-
 distributions {
     main {
         contents {
             from(tasks["jar"], "README.md", "CHANGELOG.md", "COPYING")
-        }
-    }
-}
-
-val pluginName = project.extra["plugin.name"]
-val pluginDescription = project.extra["plugin.description"]
-val pluginUrl = project.extra["plugin.link"]
-val pluginGroupId = "org.omegat.plugin." + project.name
-val packageUrl = "https://maven.pkg.github.com/miurahr/omegat-plugins"
-
-publishing {
-    publications {
-        create<MavenPublication>("omegatPlugin") {
-            from(components["java"])
-            groupId = pluginGroupId
-            pom.withXml {
-                asNode().apply {
-                    appendNode("name", pluginName)
-                    appendNode("description", pluginDescription)
-                    appendNode("url", pluginUrl)
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri(packageUrl)
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
         }
     }
 }

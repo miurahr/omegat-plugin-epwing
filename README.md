@@ -61,7 +61,7 @@ it depends on Operating systems.
 #### Linux
 
 Place plugin jar file at ~/.omegat/plugins/ for single user,  or OmegaT installation directory for all user
-ex. /opt/omegat/OmegaT-4.3.0/plugins/ 
+ex. /opt/omegat/OmegaT-5.5.0/plugins/ 
 
 #### Windows
 

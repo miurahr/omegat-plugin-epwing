@@ -5,9 +5,22 @@ All notable changes to this project will be documented in this file.
 
 ## [v2.1.2]
 
-### Changed
+### Added
+* Publish jar archive to github releases
 
+### Changed
+* Bump versions
+  - omegat-gradle@1.5.3
+  - actions/setup-java@2.1.0
+  - spotless@5.13.0
+  - commons-io@2.9.0
+  - junit@5.7.2
+  - spotbugs@4.7.1
+  - slf4j@1.7.30
+  - groovy@3.0.8
+  - coveralls@2.12.0
 * Bump EB4J@2.1.8 from MavenCentral
+* Drop azure/github repository publish
 
 ## [v2.1.1]
 

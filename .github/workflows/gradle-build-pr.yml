@@ -17,7 +17,7 @@ jobs:
         arguments: build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - uses: actions/upload-artifact@v2.2.3
+    - uses: actions/upload-artifact@v2.2.4
       with:
         name: Package
         path: build/libs

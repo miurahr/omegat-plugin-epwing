@@ -7,7 +7,7 @@ plugins {
     maven
     id("maven-publish")
     id("org.omegat.gradle") version "1.5.3"
-    id("com.github.spotbugs") version "4.7.1"
+    id("com.github.spotbugs") version "4.7.2"
     id("com.diffplug.spotless") version "5.14.1"
     id("com.github.kt3k.coveralls") version "2.12.0"
     id("com.palantir.git-version") version "0.12.3"

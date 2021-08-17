@@ -52,7 +52,7 @@ class EBDict implements IDictionary {
     public EBDict(File catalogFile) throws Exception {
         eBookDirectory = catalogFile.getParent();
         try {
-            eBookDictionary = new Book(eBookDirectory);
+            eBookDictionary = new Book(eBookDirectory, eBookDirectory);
         } catch (EBException e) {
             logEBError(e);
             throw new Exception("EPWING: There is no supported dictionary");

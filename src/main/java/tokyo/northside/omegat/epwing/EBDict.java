@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 public class EBDict implements IDictionary {
 
     private final String eBookDirectory;
-    private final Book eBookDictionary;
+    private Book eBookDictionary;
     private final SubBook[] subBooks;
     private static final Logger LOG = Logger.getLogger(OmegatEpwingDictionary.class.getName());
 
@@ -52,9 +52,14 @@ public class EBDict implements IDictionary {
         eBookDirectory = catalogFile.getParent();
         try {
             eBookDictionary = new Book(eBookDirectory, eBookDirectory);
-        } catch (EBException e) {
-            logEBError(e);
-            throw new Exception("EPWING: There is no supported dictionary");
+        } catch (EBException ignore) {
+            // There may be no appendix
+            try {
+                eBookDictionary = new Book(eBookDirectory);
+            } catch (EBException e) {
+                logEBError(e);
+                throw new Exception("EPWING: There is no supported dictionary");
+            }
         }
         final int bookType = eBookDictionary.getBookType();
         if (bookType != Book.DISC_EPWING) {
@@ -195,7 +200,7 @@ public class EBDict implements IDictionary {
                     if (subAppendix != null) {
                         try {
                             str = subAppendix.getNarrowFontAlt(code);
-                        } catch (EBException e) {
+                        } catch (EBException ignore) {
                         }
                     }
                     if (StringUtils.isBlank(str)) {
@@ -205,7 +210,7 @@ public class EBDict implements IDictionary {
                     if (subAppendix != null) {
                         try {
                             str = subAppendix.getWideFontAlt(code);
-                        } catch (EBException e) {
+                        } catch (EBException ignore) {
                         }
                     }
                     if (StringUtils.isBlank(str)) {
@@ -382,12 +387,9 @@ public class EBDict implements IDictionary {
             baos.flush();
             byte[] bytes = baos.toByteArray();
             baos.close();
-            String str = new StringBuilder()
-                    .append("<img src=\"data:image/bmp;base64,")
-                    .append(base64Encoder.encodeToString(bytes))
-                    .append("\"></img>")
-                    .toString();
-            return str;
+            return "<img src=\"data:image/bmp;base64," +
+                    base64Encoder.encodeToString(bytes) +
+                    "\"></img>";
         }
 
         /**
@@ -395,7 +397,7 @@ public class EBDict implements IDictionary {
          *
          * convert (\uFF01 - \uFF5E) to (\u0021- \u007E) and \u3000 to \u0020
          *
-         * @param text
+         * @param text source text with zenkaku.
          * @return String converted
          */
         public String convertZen2Han(final String text) {

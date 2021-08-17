@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.2.0]
+
 ### Added
 * Activate appendix support(#31)
 
@@ -11,6 +13,8 @@ All notable changes to this project will be documented in this file.
   - spotless@5.14.2
   - spotbugs@4.7.2
   - actions/upload-artifact@2.2.4
+* checkstyle: Adjust coding sytles
+* findbugs: Suppress warnings
 
 ## [v2.1.2]
 
@@ -98,7 +102,8 @@ All notable changes to this project will be documented in this file.
 ### Add
 - First working release.
 
-[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.2...HEAD
+[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.2.0...HEAD
+[v2.2.0]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.2...v2.2.0
 [v2.1.2]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.1...v2.1.2
 [v2.1.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.0...v2.1.1
 [v2.1.0]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.0.2...v2.1.0

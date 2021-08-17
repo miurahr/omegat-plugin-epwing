@@ -36,7 +36,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("commons-io:commons-io:2.9.0")
     implementation("commons-lang:commons-lang:2.6")
-    implementation("org.slf4j:slf4j-jdk14:1.7.25")
+    implementation("org.slf4j:slf4j-jdk14:1.7.32")
     testImplementation("commons-io:commons-io:2.9.0")
     testImplementation("commons-lang:commons-lang:2.6")
     testImplementation("org.codehaus.groovy:groovy-all:3.0.8")

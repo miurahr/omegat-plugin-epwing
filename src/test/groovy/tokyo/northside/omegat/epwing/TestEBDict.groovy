@@ -1,9 +1,12 @@
 package tokyo.northside.omegat.epwing
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings
+
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+@SuppressFBWarnings(value = "EI_EXPOSE_REP")
 class TestEBDict {
 
     @Test

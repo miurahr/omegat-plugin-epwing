@@ -36,12 +36,13 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("commons-io:commons-io:2.9.0")
     implementation("commons-lang:commons-lang:2.6")
-    implementation("org.slf4j:slf4j-nop:1.7.25")
+    implementation("org.slf4j:slf4j-jdk14:1.7.25")
     testImplementation("commons-io:commons-io:2.9.0")
     testImplementation("commons-lang:commons-lang:2.6")
     testImplementation("org.codehaus.groovy:groovy-all:3.0.8")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+    testImplementation("com.github.spotbugs:spotbugs-annotations:4.3.0")
 }
 
 jacoco {

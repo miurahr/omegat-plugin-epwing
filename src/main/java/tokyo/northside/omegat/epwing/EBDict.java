@@ -16,27 +16,26 @@ import org.omegat.core.dictionaries.DictionaryEntry;
 import org.omegat.core.dictionaries.IDictionary;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-class EBDict implements IDictionary {
+public class EBDict implements IDictionary {
 
     private final String eBookDirectory;
     private final Book eBookDictionary;
     private final SubBook[] subBooks;
     private static final Logger LOG = Logger.getLogger(OmegatEpwingDictionary.class.getName());
 
-    private static void logEBError(EBException e) {
+    private static void logEBError(final EBException e) {
         switch (e.getErrorCode()) {
             case EBException.CANT_READ_DIR:
                 LOG.log(Level.WARNING, "EPWING error: cannot read directory:" + e.getMessage());
@@ -49,7 +48,7 @@ class EBDict implements IDictionary {
         }
     }
 
-    public EBDict(File catalogFile) throws Exception {
+    public EBDict(final File catalogFile) throws Exception {
         eBookDirectory = catalogFile.getParent();
         try {
             eBookDictionary = new Book(eBookDirectory, eBookDirectory);
@@ -75,7 +74,7 @@ class EBDict implements IDictionary {
      * upstream use (\n replaced with <br>, etc.
      */
     @Override
-    public List<DictionaryEntry> readArticles(String word) {
+    public List<DictionaryEntry> readArticles(final String word) {
         Searcher sh;
         Result searchResult;
         Hook<String> hook;
@@ -102,14 +101,14 @@ class EBDict implements IDictionary {
 
     public static class EBDictStringHook extends HookAdapter<String> {
 
-        private final int _maxlines;
+        private final int maxlines;
         private final StringBuffer output = new StringBuffer(16384);
         private int lineNum = 0;
         private boolean narrow = false;
         private int decType;
-        private final SubAppendix _appendix;
-        private final ExtFont _extFont;
-        private final Base64.Encoder _base64Encoder;
+        private final SubAppendix subAppendix;
+        private final ExtFont extFont;
+        private final Base64.Encoder base64Encoder;
         private UnicodeMap unicodeMap;
 
         public EBDictStringHook(final SubBook sb) {
@@ -118,10 +117,10 @@ class EBDict implements IDictionary {
 
         public EBDictStringHook(final SubBook sb, final int lines) {
             super();
-            _appendix = sb.getSubAppendix();
-            _extFont = sb.getFont();
-            _maxlines = lines;
-            _base64Encoder = Base64.getEncoder();
+            subAppendix = sb.getSubAppendix();
+            extFont = sb.getFont();
+            maxlines = lines;
+            base64Encoder = Base64.getEncoder();
             String title = sb.getTitle();
             try {
                 unicodeMap = new UnicodeMap(title, new File(sb.getBook().getPath()));
@@ -132,7 +131,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * clear output line
+         * clear output line.
          */
         @Override
         public void clear() {
@@ -141,7 +140,7 @@ class EBDict implements IDictionary {
         }
 
         /*
-         * get result string
+         * get result string.
          */
         @Override
         public String getObject() {
@@ -153,11 +152,11 @@ class EBDict implements IDictionary {
          */
         @Override
         public boolean isMoreInput() {
-            return lineNum < _maxlines;
+            return lineNum < maxlines;
         }
 
         /**
-         * append character
+         * append character.
          *
          * @param ch character
          */
@@ -172,7 +171,7 @@ class EBDict implements IDictionary {
          * @param text string to append
          */
         @Override
-        public void append(String text) {
+        public void append(final String text) {
             if (narrow) {
                 output.append(convertZen2Han(text));
             } else {
@@ -181,21 +180,21 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * Append GAIJI text(bitmap)
+         * Append GAIJI text(bitmap).
          *
          * @param code gaiji code referenced to bitmap griff image
          */
         @Override
-        public void append(int code) {
+        public void append(final int code) {
             String str = null;
             if (unicodeMap != null) {
                 str = unicodeMap.get(code);
             }
             if (StringUtils.isBlank(str)) {
                 if (narrow) {
-                    if (_appendix != null) {
+                    if (subAppendix != null) {
                         try {
-                            str = _appendix.getNarrowFontAlt(code);
+                            str = subAppendix.getNarrowFontAlt(code);
                         } catch (EBException e) {
                         }
                     }
@@ -203,9 +202,9 @@ class EBDict implements IDictionary {
                         str = "[GAIJI=n" + HexUtil.toHexString(code) + "]";
                     }
                 } else {
-                    if (_appendix != null) {
+                    if (subAppendix != null) {
                         try {
-                            str = _appendix.getWideFontAlt(code);
+                            str = subAppendix.getWideFontAlt(code);
                         } catch (EBException e) {
                         }
                     }
@@ -218,7 +217,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * begin roman alphabet
+         * begin roman alphabet.
          */
         @Override
         public void beginNarrow() {
@@ -226,7 +225,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * end roman alphabet
+         * end roman alphabet.
          */
         @Override
         public void endNarrow() {
@@ -234,7 +233,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * begin subscript
+         * begin subscript.
          */
         @Override
         public void beginSubscript() {
@@ -242,7 +241,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * end subscript
+         * end subscript.
          */
         @Override
         public void endSubscript() {
@@ -250,7 +249,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * begin super script
+         * begin super script.
          */
         @Override
         public void beginSuperscript() {
@@ -258,7 +257,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * end super script
+         * end super script.
          */
         @Override
         public void endSuperscript() {
@@ -266,12 +265,12 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * set indent of line head
+         * set indent of line head.
          *
          * @param len size of indent
          */
         @Override
-        public void setIndent(int len) {
+        public void setIndent(final int len) {
             for (int i = 0; i < len; i++) {
                 output.append("&nbsp;");
             }
@@ -287,7 +286,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * set no break
+         * set no break.
          */
         @Override
         public void beginNoNewLine() {
@@ -300,7 +299,7 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * insert em tag
+         * insert em tag.
          */
         @Override
         public void beginEmphasis() {
@@ -313,12 +312,12 @@ class EBDict implements IDictionary {
         }
 
         /**
-         * insert decoration
+         * insert decoration.
          *
          * @param type decoration type #BOLD #ITALIC
          */
         @Override
-        public void beginDecoration(int type) {
+        public void beginDecoration(final int type) {
             this.decType = type;
             switch (decType) {
                 case BOLD:
@@ -360,15 +359,18 @@ class EBDict implements IDictionary {
          * Convert XBM image to lossless WebP and convert to Base64 String.
          *
          * @param data XBM data
+         * @param height image height
+         * @param width image width
          * @return String Base64 encoded BMP data.
+         * @throws IOException when the image is broken or caused error.
          */
         public String convert2Image(final byte[] data, final int height, final int width) throws IOException {
             final BufferedImage res = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
-            for (int y = 0; y < height; y++){
-                for (int x = 0; x < width; x++){
-                    int bit_pos = 1 << ((x + y * height) & 0x07);
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int bitPos = 1 << ((x + y * height) & 0x07);
                     int pos = (x +  y * height) >> 3;
-                    if ((data[pos] & bit_pos) == 0) {
+                    if ((data[pos] & bitPos) == 0) {
                         res.setRGB(x, y, Color.WHITE.getRGB());
                     } else {
                         res.setRGB(x, y, Color.BLACK.getRGB());
@@ -382,21 +384,21 @@ class EBDict implements IDictionary {
             baos.close();
             String str = new StringBuilder()
                     .append("<img src=\"data:image/bmp;base64,")
-                    .append(_base64Encoder.encodeToString(bytes))
+                    .append(base64Encoder.encodeToString(bytes))
                     .append("\"></img>")
                     .toString();
             return str;
         }
 
         /**
-         * convert Zenkaku alphabet to Hankaku
+         * convert Zenkaku alphabet to Hankaku.
          *
          * convert (\uFF01 - \uFF5E) to (\u0021- \u007E) and \u3000 to \u0020
          *
          * @param text
          * @return String converted
          */
-        public String convertZen2Han(String text) {
+        public String convertZen2Han(final String text) {
             StringBuilder result = new StringBuilder(text.length());
             for (int i = 0; i < text.length(); i++) {
                 int cp = text.codePointAt(i);

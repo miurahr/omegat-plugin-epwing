@@ -28,7 +28,7 @@ import org.omegat.core.dictionaries.IDictionaryFactory;
 import org.omegat.core.events.IApplicationEventListener;
 
 /**
- * EPWING dictionary access class
+ * EPWING dictionary access class.
  *
  * @author Hiroshi Miura
  */
@@ -42,12 +42,12 @@ public class OmegatEpwingDictionary implements IDictionaryFactory {
     }
 
     @Override
-    public boolean isSupportedFile(File file) {
+    public boolean isSupportedFile(final File file) {
         return file.getPath().toUpperCase().endsWith("CATALOGS");
     }
 
     @Override
-    public IDictionary loadDict(File file) throws Exception {
+    public IDictionary loadDict(final File file) throws Exception {
         return new EBDict(file);
     }
 

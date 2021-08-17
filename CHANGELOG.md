@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+* Activate appendix support(#31)
+
+### Changed
+* Bump versions
+  - spotless@5.14.2
+  - spotbugs@4.7.2
+  - actions/upload-artifact@2.2.4
+
 ## [v2.1.2]
 
 ### Added

@@ -32,7 +32,7 @@ omegat {
 }
 
 dependencies {
-    packIntoJar("io.github.eb4j:eb4j:2.1.8")
+    packIntoJar("io.github.eb4j:eb4j:2.1.10")
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("commons-io:commons-io:2.9.0")
     implementation("commons-lang:commons-lang:2.6")

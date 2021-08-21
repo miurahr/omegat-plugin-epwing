@@ -1,6 +1,8 @@
 package tokyo.northside.omegat.epwing;
 
 import io.github.eb4j.EBException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -8,12 +10,10 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public final class Utils {
 
-    static final Logger LOG = Logger.getLogger(OmegatEpwingDictionary.class.getName());
+    static final Logger LOG = LoggerFactory.getLogger(OmegatEpwingDictionary.class.getName());
 
     private Utils() {
     }
@@ -53,6 +53,17 @@ public final class Utils {
     }
 
     /**
+     * convert unicode escape sequence to unicode code.
+     */
+    static String getUnicode(final String text) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            int cp = text.codePointAt(i);
+        }
+        return sb.toString();
+    }
+
+    /**
      * convert Zenkaku alphabet to Hankaku.
      *
      * convert (\uFF01 - \uFF5E) to (\u0021- \u007E) and \u3000 to \u0020
@@ -78,12 +89,12 @@ public final class Utils {
     static void logEBError(final EBException e) {
         switch (e.getErrorCode()) {
             case EBException.CANT_READ_DIR:
-                LOG.log(Level.WARNING, "EPWING error: cannot read directory:" + e.getMessage());
+                LOG.warn("EPWING error: cannot read directory:" + e.getMessage());
                 break;
             case EBException.DIR_NOT_FOUND:
-                LOG.log(Level.WARNING, "EPWING error: cannot found directory:" + e.getMessage());
+                LOG.warn("EPWING error: cannot found directory:" + e.getMessage());
             default:
-                LOG.log(Level.WARNING, "EPWING error: " + e.getMessage());
+                LOG.warn("EPWING error: " + e.getMessage());
                 break;
         }
     }

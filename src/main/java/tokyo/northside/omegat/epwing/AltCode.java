@@ -27,32 +27,32 @@ public class AltCode {
 
     public String getAltCode(final int code, final boolean narrow) {
         String str = null;
+        // Check DDWIN style unicode map
         if (unicodeMap != null) {
             str = unicodeMap.get(code);
-        }
-        if (StringUtils.isBlank(str)) {
-            if (narrow) {
-                if (subAppendix != null) {
-                    try {
-                        str = subAppendix.getNarrowFontAlt(code);
-                    } catch (EBException ignore) {
-                    }
-                }
-                if (StringUtils.isBlank(str)) {
-                    str = "[GAIJI=n" + HexUtil.toHexString(code) + "]";
-                }
-            } else {
-                if (subAppendix != null) {
-                    try {
-                        str = subAppendix.getWideFontAlt(code);
-                    } catch (EBException ignore) {
-                    }
-                }
-                if (StringUtils.isBlank(str)) {
-                    str = "[GAIJI=w" + HexUtil.toHexString(code) + "]";
-                }
+            if (!StringUtils.isBlank(str)) {
+                return str;
             }
         }
-        return str;
+        // libEB appendix alternation w/ unicode escape support
+        if (subAppendix != null) {
+            try {
+                if (narrow) {
+                    str = subAppendix.getNarrowFontAlt(code);
+                } else {
+                    str = subAppendix.getWideFontAlt(code);
+                }
+            } catch (EBException ignore) {
+            }
+            if (!StringUtils.isBlank(str)) {
+                return str;
+            }
+        }
+        // no alternation, insert code hex instead.
+        if (narrow) {
+            return "[GAIJI=n" + HexUtil.toHexString(code) + "]";
+        } else {
+            return "[GAIJI=w" + HexUtil.toHexString(code) + "]";
+        }
     }
 }

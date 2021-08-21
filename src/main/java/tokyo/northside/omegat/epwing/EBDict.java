@@ -2,68 +2,37 @@ package tokyo.northside.omegat.epwing;
 
 import io.github.eb4j.Book;
 import io.github.eb4j.EBException;
-import io.github.eb4j.ExtFont;
 import io.github.eb4j.Result;
 import io.github.eb4j.Searcher;
-import io.github.eb4j.SubAppendix;
 import io.github.eb4j.SubBook;
-import io.github.eb4j.ext.UnicodeMap;
 import io.github.eb4j.hook.Hook;
 import io.github.eb4j.hook.HookAdapter;
-import io.github.eb4j.util.HexUtil;
-import org.apache.commons.lang.StringUtils;
 import org.omegat.core.dictionaries.DictionaryEntry;
 import org.omegat.core.dictionaries.IDictionary;
 
-import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class EBDict implements IDictionary {
 
-    private final String eBookDirectory;
-    private Book eBookDictionary;
     private final SubBook[] subBooks;
-    private static final Logger LOG = Logger.getLogger(OmegatEpwingDictionary.class.getName());
-
-    private static void logEBError(final EBException e) {
-        switch (e.getErrorCode()) {
-            case EBException.CANT_READ_DIR:
-                LOG.log(Level.WARNING, "EPWING error: cannot read directory:" + e.getMessage());
-                break;
-            case EBException.DIR_NOT_FOUND:
-                LOG.log(Level.WARNING, "EPWING error: cannot found directory:" + e.getMessage());
-            default:
-                LOG.log(Level.WARNING, "EPWING error: " + e.getMessage());
-                break;
-        }
-    }
 
     public EBDict(final File catalogFile) throws Exception {
-        eBookDirectory = catalogFile.getParent();
+        String eBookDirectory = catalogFile.getParent();
+        Book eBookDictionary;
         try {
+            // try dictionary and appendix first.
             eBookDictionary = new Book(eBookDirectory, eBookDirectory);
         } catch (EBException ignore) {
-            // There may be no appendix
+            // There may be no appendix, try again with dictionary only.
             try {
                 eBookDictionary = new Book(eBookDirectory);
             } catch (EBException e) {
-                logEBError(e);
+                Utils.logEBError(e);
                 throw new Exception("EPWING: There is no supported dictionary");
             }
-        }
-        final int bookType = eBookDictionary.getBookType();
-        if (bookType != Book.DISC_EPWING) {
-            throw new Exception("EPWING: Invalid type of dictionary");
         }
         subBooks = eBookDictionary.getSubBooks();
 
@@ -96,7 +65,7 @@ public class EBDict implements IDictionary {
                         result.add(new DictionaryEntry(word, article));
                     }
                 } catch (EBException e) {
-                    logEBError(e);
+                    Utils.logEBError(e);
                 }
             }
         }
@@ -104,17 +73,18 @@ public class EBDict implements IDictionary {
         return result;
     }
 
-    public static class EBDictStringHook extends HookAdapter<String> {
+    /**
+     * EB/EPWING sequence Hook handler.
+     */
+    public static final class EBDictStringHook extends HookAdapter<String> {
 
         private final int maxlines;
         private final StringBuffer output = new StringBuffer(16384);
         private int lineNum = 0;
         private boolean narrow = false;
         private int decType;
-        private final SubAppendix subAppendix;
-        private final ExtFont extFont;
-        private final Base64.Encoder base64Encoder;
-        private UnicodeMap unicodeMap;
+        // private final ExtFont extFont;
+        private final AltCode altCode;
 
         public EBDictStringHook(final SubBook sb) {
             this(sb, 500);
@@ -122,17 +92,11 @@ public class EBDict implements IDictionary {
 
         public EBDictStringHook(final SubBook sb, final int lines) {
             super();
-            subAppendix = sb.getSubAppendix();
-            extFont = sb.getFont();
+            // XXX: disabled getting GAIJI and showing as image.
+            // becuase of limitation on dictionary pane
+            // extFont = sb.getFont();
             maxlines = lines;
-            base64Encoder = Base64.getEncoder();
-            String title = sb.getTitle();
-            try {
-                unicodeMap = new UnicodeMap(title, new File(sb.getBook().getPath()));
-            } catch (EBException e) {
-                unicodeMap = null;
-                logEBError(e);
-            }
+            altCode = new AltCode(sb);
         }
 
         /**
@@ -178,7 +142,7 @@ public class EBDict implements IDictionary {
         @Override
         public void append(final String text) {
             if (narrow) {
-                output.append(convertZen2Han(text));
+                output.append(Utils.convertZen2Han(text));
             } else {
                 output.append(text);
             }
@@ -191,34 +155,7 @@ public class EBDict implements IDictionary {
          */
         @Override
         public void append(final int code) {
-            String str = null;
-            if (unicodeMap != null) {
-                str = unicodeMap.get(code);
-            }
-            if (StringUtils.isBlank(str)) {
-                if (narrow) {
-                    if (subAppendix != null) {
-                        try {
-                            str = subAppendix.getNarrowFontAlt(code);
-                        } catch (EBException ignore) {
-                        }
-                    }
-                    if (StringUtils.isBlank(str)) {
-                        str = "[GAIJI=n" + HexUtil.toHexString(code) + "]";
-                    }
-                } else {
-                    if (subAppendix != null) {
-                        try {
-                            str = subAppendix.getWideFontAlt(code);
-                        } catch (EBException ignore) {
-                        }
-                    }
-                    if (StringUtils.isBlank(str)) {
-                        str = "[GAIJI=w" + HexUtil.toHexString(code) + "]";
-                    }
-                }
-            }
-            output.append(str);
+            output.append(altCode.getAltCode(code, narrow));
         }
 
         /**
@@ -360,59 +297,5 @@ public class EBDict implements IDictionary {
         public void endUnicode() {
         }
 
-        /**
-         * Convert XBM image to lossless WebP and convert to Base64 String.
-         *
-         * @param data XBM data
-         * @param height image height
-         * @param width image width
-         * @return String Base64 encoded BMP data.
-         * @throws IOException when the image is broken or caused error.
-         */
-        public String convert2Image(final byte[] data, final int height, final int width) throws IOException {
-            final BufferedImage res = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int bitPos = 1 << ((x + y * height) & 0x07);
-                    int pos = (x +  y * height) >> 3;
-                    if ((data[pos] & bitPos) == 0) {
-                        res.setRGB(x, y, Color.WHITE.getRGB());
-                    } else {
-                        res.setRGB(x, y, Color.BLACK.getRGB());
-                    }
-                }
-            }
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(res, "bmp", baos);
-            baos.flush();
-            byte[] bytes = baos.toByteArray();
-            baos.close();
-            return "<img src=\"data:image/bmp;base64," +
-                    base64Encoder.encodeToString(bytes) +
-                    "\"></img>";
-        }
-
-        /**
-         * convert Zenkaku alphabet to Hankaku.
-         *
-         * convert (\uFF01 - \uFF5E) to (\u0021- \u007E) and \u3000 to \u0020
-         *
-         * @param text source text with zenkaku.
-         * @return String converted
-         */
-        public String convertZen2Han(final String text) {
-            StringBuilder result = new StringBuilder(text.length());
-            for (int i = 0; i < text.length(); i++) {
-                int cp = text.codePointAt(i);
-                if (0xFF00 < cp && cp < 0xFF5F) {
-                    result.append((char) (cp - 0xFEE0));
-                } else if (cp == 0x3000) {
-                    result.append("\u0020");
-                } else {
-                    result.appendCodePoint(cp);
-                }
-            }
-            return result.toString();
-        }
     }
 }

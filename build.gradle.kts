@@ -33,10 +33,12 @@ omegat {
 
 dependencies {
     packIntoJar("io.github.eb4j:eb4j:2.1.10")
+    // these are bundled lib in omegat, should keep versions
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("commons-io:commons-io:2.9.0")
     implementation("commons-lang:commons-lang:2.6")
-    implementation("org.slf4j:slf4j-jdk14:1.7.25")
+    // should not bundle
+    implementation("org.slf4j:slf4j-simple:1.7.25")
     testImplementation("commons-io:commons-io:2.9.0")
     testImplementation("commons-lang:commons-lang:2.6")
     testImplementation("org.codehaus.groovy:groovy-all:3.0.8")

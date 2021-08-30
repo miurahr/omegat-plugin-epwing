@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class EBDict implements IDictionary {
@@ -57,21 +59,32 @@ public class EBDict implements IDictionary {
         Searcher sh;
         Result searchResult;
         Hook<String> hook;
+        String heading;
         String article;
+        Set<String> headings = new HashSet<>();
         List<DictionaryEntry> result = new ArrayList<>();
 
         for (SubBook sb : subBooks) {
-            if (sb.hasExactwordSearch()) {
-                try {
-                    hook = new EBDictStringHook(sb);
+            try {
+                hook = new EBDictStringHook(sb);
+                if (sb.hasWordSearch()) {
+                    sh = sb.searchWord(word);
+                } else if (sb.hasExactwordSearch()) {
                     sh = sb.searchExactword(word);
-                    while ((searchResult = sh.getNextResult()) != null) {
-                        article = searchResult.getText(hook);
-                        result.add(new DictionaryEntry(word, article));
-                    }
-                } catch (EBException e) {
-                    Utils.logEBError(e);
+                } else {
+                    continue;
                 }
+                while ((searchResult = sh.getNextResult()) != null) {
+                    heading = searchResult.getHeading(hook);
+                    if (headings.contains(heading)) {
+                        continue;
+                    }
+                    headings.add(heading);
+                    article = searchResult.getText(hook);
+                    result.add(new DictionaryEntry(heading, article));
+                }
+            } catch (EBException e) {
+                Utils.logEBError(e);
             }
         }
 

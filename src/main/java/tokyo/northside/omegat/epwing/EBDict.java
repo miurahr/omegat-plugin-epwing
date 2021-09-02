@@ -26,11 +26,17 @@ public class EBDict implements IDictionary {
     private final SubBook[] subBooks;
 
     public EBDict(final File catalogFile) throws Exception {
-        String eBookDirectory = catalogFile.getParent();
         Book eBookDictionary;
+        String eBookDirectory = catalogFile.getParent();
+        String appendixDirectory;
+        if (new File(eBookDirectory, "appendix").isDirectory()) {
+            appendixDirectory = new File(eBookDirectory, "appendix").getPath();
+        } else {
+            appendixDirectory = eBookDirectory;
+        }
         try {
             // try dictionary and appendix first.
-            eBookDictionary = new Book(eBookDirectory, eBookDirectory);
+            eBookDictionary = new Book(eBookDirectory, appendixDirectory);
             LOG.info("Load dictionary with appendix.");
         } catch (EBException ignore) {
             // There may be no appendix, try again with dictionary only.
@@ -42,7 +48,6 @@ public class EBDict implements IDictionary {
             }
         }
         subBooks = eBookDictionary.getSubBooks();
-
     }
 
     /*

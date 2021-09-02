@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v2.2.1]
+
+### Changed
+* Bump versions
+  - eb4j@2.2.1(#42)
+  - actions/setup-java@2.3.0
+  - spotless@5.14.3
+* Use prefix search(#43)
+* Allow appendix/furoku beside with catalogs(#43)
+
+### Fixed
+* slf4j configuration: duplicated backend
+
 ## [v2.2.0]
 
 ### Added
@@ -102,7 +115,8 @@ All notable changes to this project will be documented in this file.
 ### Add
 - First working release.
 
-[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.2.1...HEAD
+[v2.2.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.2.0...v2.2.1
 [v2.2.0]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.2...v2.2.0
 [v2.1.2]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.1...v2.1.2
 [v2.1.1]: https://github.com/miurahr/omegat-plugin-epwing/compare/v2.1.0...v2.1.1

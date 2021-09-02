@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class EBDict implements IDictionary {
@@ -24,11 +26,17 @@ public class EBDict implements IDictionary {
     private final SubBook[] subBooks;
 
     public EBDict(final File catalogFile) throws Exception {
-        String eBookDirectory = catalogFile.getParent();
         Book eBookDictionary;
+        String eBookDirectory = catalogFile.getParent();
+        String appendixDirectory;
+        if (new File(eBookDirectory, "appendix").isDirectory()) {
+            appendixDirectory = new File(eBookDirectory, "appendix").getPath();
+        } else {
+            appendixDirectory = eBookDirectory;
+        }
         try {
             // try dictionary and appendix first.
-            eBookDictionary = new Book(eBookDirectory, eBookDirectory);
+            eBookDictionary = new Book(eBookDirectory, appendixDirectory);
             LOG.info("Load dictionary with appendix.");
         } catch (EBException ignore) {
             // There may be no appendix, try again with dictionary only.
@@ -40,7 +48,6 @@ public class EBDict implements IDictionary {
             }
         }
         subBooks = eBookDictionary.getSubBooks();
-
     }
 
     /*
@@ -57,21 +64,32 @@ public class EBDict implements IDictionary {
         Searcher sh;
         Result searchResult;
         Hook<String> hook;
+        String heading;
         String article;
+        Set<String> headings = new HashSet<>();
         List<DictionaryEntry> result = new ArrayList<>();
 
         for (SubBook sb : subBooks) {
-            if (sb.hasExactwordSearch()) {
-                try {
-                    hook = new EBDictStringHook(sb);
+            try {
+                hook = new EBDictStringHook(sb);
+                if (sb.hasWordSearch()) {
+                    sh = sb.searchWord(word);
+                } else if (sb.hasExactwordSearch()) {
                     sh = sb.searchExactword(word);
-                    while ((searchResult = sh.getNextResult()) != null) {
-                        article = searchResult.getText(hook);
-                        result.add(new DictionaryEntry(word, article));
-                    }
-                } catch (EBException e) {
-                    Utils.logEBError(e);
+                } else {
+                    continue;
                 }
+                while ((searchResult = sh.getNextResult()) != null) {
+                    heading = searchResult.getHeading(hook);
+                    if (headings.contains(heading)) {
+                        continue;
+                    }
+                    headings.add(heading);
+                    article = searchResult.getText(hook);
+                    result.add(new DictionaryEntry(heading, article));
+                }
+            } catch (EBException e) {
+                Utils.logEBError(e);
             }
         }
 

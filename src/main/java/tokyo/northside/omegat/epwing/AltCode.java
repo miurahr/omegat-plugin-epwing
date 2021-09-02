@@ -27,13 +27,7 @@ public class AltCode {
 
     public String getAltCode(final int code, final boolean narrow) {
         String str = null;
-        // Check DDWIN style unicode map
-        if (unicodeMap != null) {
-            str = unicodeMap.get(code);
-            if (!StringUtils.isBlank(str)) {
-                return str;
-            }
-        }
+
         // libEB appendix alternation w/ unicode escape support
         if (subAppendix != null) {
             try {
@@ -43,6 +37,17 @@ public class AltCode {
                     str = subAppendix.getWideFontAlt(code);
                 }
             } catch (EBException ignore) {
+            }
+            if (!StringUtils.isBlank(str)) {
+                return str;
+            }
+        }
+        // Check DDWIN style unicode map
+        if (unicodeMap != null) {
+            if (narrow) {
+                str = unicodeMap.getNarrow(code);
+            } else {
+                str = unicodeMap.getWide(code);
             }
             if (!StringUtils.isBlank(str)) {
                 return str;

@@ -40,7 +40,7 @@ dependencies {
     // should not bundle
     testImplementation("commons-io:commons-io:2.9.0")
     testImplementation("commons-lang:commons-lang:2.6")
-    testImplementation("org.codehaus.groovy:groovy-all:3.0.8")
+    testImplementation("org.codehaus.groovy:groovy-all:3.0.9")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
     testImplementation("com.github.spotbugs:spotbugs-annotations:4.4.0")

@@ -107,7 +107,7 @@ public class EBDict implements IDictionary {
         private boolean narrow = false;
         private int decType;
         // private final ExtFont extFont;
-        private final AltCode altCode;
+        private final Gaiji altCode;
 
         public EBDictStringHook(final SubBook sb) {
             this(sb, 500);
@@ -119,7 +119,7 @@ public class EBDict implements IDictionary {
             // becuase of limitation on dictionary pane
             // extFont = sb.getFont();
             maxlines = lines;
-            altCode = new AltCode(sb);
+            altCode = new Gaiji(sb);
         }
 
         /**

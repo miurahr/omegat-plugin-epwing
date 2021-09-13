@@ -22,11 +22,13 @@ It also supports following extensions;
 - Appendix extension: Appendix is an extension introduced by EB library.
   User can define GAIJI-Unicode mapping in Appendix dictionary format.
   Format details are on [EB library home page](http://www.mistys-internet.website/eb/) and
-  [EBAppendix document](http://www.mistys-internet.website/eb/doc/ebappendix.html), Or
-  see source at [EB library(mirror)](https://github.com/jokester/eb)
+  [EBAppendix document](http://www.mistys-internet.website/eb/doc/ebappendix.html).
   
-  You can find an up-to-date definitions on https://github.com/eb4j/furoku-data
-  and download from github release
+  You can generate appendix file using [eb4j-tools](https://github.com/eb4j/eb4j-tools)
+  appendix subcommand from YAML definitions.
+  
+  You can also find an up-to-date definitions on https://github.com/eb4j/furoku-data
+  project, and download these at
   
 
 Target                    |  Source       | Stop-code | Status  | download
@@ -48,8 +50,8 @@ Target                    |  Source       | Stop-code | Status  | download
   You can find several pre-defined maps on internet search, and you can find files in EBWin/EBMac
   distribution for several known dictionaries.
   
-  Map extension don't have a definition of article stop-code. You are recommended to use Appendix for stop-code even when you 
-  want to use the map.
+  Map extension don't have a definition of article stop-code. It is mandatory for some dictionary to show it properly.
+  You are recommended to use Appendix for stop-code even when you want to use the EBStudio gaiji map.
 
 ### Search features
 

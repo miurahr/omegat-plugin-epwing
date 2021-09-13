@@ -103,6 +103,9 @@ public final class Utils {
             i--;
             k += bitmapLineLength;
             for (int j = 0; j < linePad; j++, k++) {
+                if  (fileSize < k) {
+                    return bmp;
+                }
                 bmp[k]  = 0x00;
             }
         }

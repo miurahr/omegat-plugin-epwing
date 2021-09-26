@@ -10,15 +10,24 @@ plugins {
     id("com.github.spotbugs") version "4.7.6"
     id("com.diffplug.spotless") version "5.15.1"
     id("com.github.kt3k.coveralls") version "2.12.0"
-    id("com.palantir.git-version") version "0.12.3"
+    id("com.palantir.git-version") version "0.12.3" apply false
 }
 
-// calculate version string from git tag, hash and commit distance
-fun getVersionDetails(): com.palantir.gradle.gitversion.VersionDetails = (extra["versionDetails"] as groovy.lang.Closure<*>)() as com.palantir.gradle.gitversion.VersionDetails
-if (getVersionDetails().isCleanTag) {
-    version = getVersionDetails().lastTag.substring(1)
+// we handle cases without .git directory
+val dotgit = project.file(".git")
+if (dotgit.exists()) {
+    // calculate version string from git tag, hash and commit distance
+    apply(plugin = "com.palantir.git-version")
+    val versionDetails: groovy.lang.Closure<com.palantir.gradle.gitversion.VersionDetails> by extra
+    val details = versionDetails()
+    val baseVersion = details.lastTag.substring(1)
+    if (details.isCleanTag) {  // release version
+        version = baseVersion
+    } else {  // snapshot version
+        version = baseVersion + "-" + details.commitDistance + "-" + details.gitHash + "-SNAPSHOT"
+    }
 } else {
-    version = getVersionDetails().lastTag.substring(1) + "-" + getVersionDetails().commitDistance + "-" + getVersionDetails().gitHash + "-SNAPSHOT"
+    println("Read version property from gradle.properties.")
 }
 
 configure<JavaPluginConvention> {
@@ -29,6 +38,11 @@ configure<JavaPluginConvention> {
 omegat {
     version = "5.5.0"
     pluginClass = "tokyo.northside.omegat.epwing.OmegatEpwingDictionary"
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -56,8 +70,8 @@ tasks.jacocoTestReport {
 
 tasks.jacocoTestReport {
     reports {
-        xml.isEnabled = true  // coveralls plugin depends on xml format report
-        html.isEnabled = true
+        xml.required.set(true)  // coveralls plugin depends on xml format report
+        html.required.set(true)
     }
 }
 

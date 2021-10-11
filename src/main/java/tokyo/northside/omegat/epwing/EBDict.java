@@ -71,10 +71,51 @@ public class EBDict implements IDictionary {
         for (SubBook sb : subBooks) {
             try {
                 hook = new EBDictStringHook(sb);
+                if (sb.hasExactwordSearch()) {
+                    sh = sb.searchExactword(word);
+                } else {
+                    continue;
+                }
+                while ((searchResult = sh.getNextResult()) != null) {
+                    heading = searchResult.getHeading(hook);
+                    if (headings.contains(heading)) {
+                        continue;
+                    }
+                    headings.add(heading);
+                    article = searchResult.getText(hook);
+                    result.add(new DictionaryEntry(heading, article));
+                }
+            } catch (EBException e) {
+                Utils.logEBError(e);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Read article's text. Matching is predictive, so e.g. supplying "term"
+     * will return articles for "term", "terminology", "termite", etc. The
+     * default implementation simply calls {@link #readArticles(String)} for
+     * backwards compatibility.
+     *
+     * @param word The word to look up in the dictionary
+     * @return List of entries. May be empty, but cannot be null.
+     */
+    @Override
+    public List<DictionaryEntry> readArticlesPredictive(String word) throws Exception {
+        Searcher sh;
+        Result searchResult;
+        Hook<String> hook;
+        String heading;
+        String article;
+        Set<String> headings = new HashSet<>();
+        List<DictionaryEntry> result = new ArrayList<>();
+
+        for (SubBook sb : subBooks) {
+            try {
+                hook = new EBDictStringHook(sb);
                 if (sb.hasWordSearch()) {
                     sh = sb.searchWord(word);
-                } else if (sb.hasExactwordSearch()) {
-                    sh = sb.searchExactword(word);
                 } else {
                     continue;
                 }

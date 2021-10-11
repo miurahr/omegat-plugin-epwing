@@ -8,7 +8,7 @@ plugins {
     id("maven-publish")
     id("org.omegat.gradle") version "1.5.3"
     id("com.github.spotbugs") version "4.7.6"
-    id("com.diffplug.spotless") version "5.15.1"
+    id("com.diffplug.spotless") version "5.16.0"
     id("com.github.kt3k.coveralls") version "2.12.0"
     id("com.palantir.git-version") version "0.12.3" apply false
 }
@@ -46,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    packIntoJar("io.github.eb4j:eb4j:2.2.2")
+    packIntoJar("io.github.eb4j:eb4j:2.3.0")
     // these are bundled lib in omegat, should keep versions
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("commons-io:commons-io:2.9.0")

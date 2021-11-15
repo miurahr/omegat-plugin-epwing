@@ -49,7 +49,7 @@ dependencies {
     packIntoJar("io.github.eb4j:eb4j:2.3.0")
     // these are bundled lib in omegat, should keep versions
     implementation("org.slf4j:slf4j-api:1.7.32")
-    implementation("commons-io:commons-io:2.9.0")
+    implementation("commons-io:commons-io:2.11.0")
     implementation("commons-lang:commons-lang:2.6")
     // should not bundle
     testImplementation("commons-io:commons-io:2.9.0")

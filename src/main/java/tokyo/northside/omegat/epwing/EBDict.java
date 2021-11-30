@@ -8,8 +8,7 @@ import io.github.eb4j.SubBook;
 import io.github.eb4j.hook.Hook;
 import org.omegat.core.dictionaries.DictionaryEntry;
 import org.omegat.core.dictionaries.IDictionary;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.omegat.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,8 +18,6 @@ import java.util.Set;
 
 
 public class EBDict implements IDictionary {
-
-    static final Logger LOG = LoggerFactory.getLogger(OmegatEpwingDictionary.class.getName());
 
     private final SubBook[] subBooks;
 
@@ -36,7 +33,7 @@ public class EBDict implements IDictionary {
         try {
             // try dictionary and appendix first.
             eBookDictionary = new Book(eBookDirectory, appendixDirectory);
-            LOG.info("Load dictionary with appendix.");
+            Log.log("Load dictionary with appendix.");
         } catch (EBException ignore) {
             // There may be no appendix, try again with dictionary only.
             try {

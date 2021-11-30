@@ -1,8 +1,7 @@
 package tokyo.northside.omegat.epwing;
 
 import io.github.eb4j.EBException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.omegat.util.Log;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -13,7 +12,6 @@ import java.util.Base64;
 
 public final class Utils {
 
-    static final Logger LOG = LoggerFactory.getLogger(OmegatEpwingDictionary.class.getName());
     static final int BMP_PREAMBLE_LENGTH = 62;
 
     private Utils() {
@@ -170,12 +168,12 @@ public final class Utils {
     static void logEBError(final EBException e) {
         switch (e.getErrorCode()) {
             case EBException.CANT_READ_DIR:
-                LOG.warn("EPWING error: cannot read directory:" + e.getMessage());
+                Log.log("EPWING error: cannot read directory:" + e.getMessage());
                 break;
             case EBException.DIR_NOT_FOUND:
-                LOG.warn("EPWING error: cannot found directory:" + e.getMessage());
+                Log.log("EPWING error: cannot found directory:" + e.getMessage());
             default:
-                LOG.warn("EPWING error: " + e.getMessage());
+                Log.log("EPWING error: " + e.getMessage());
                 break;
         }
     }

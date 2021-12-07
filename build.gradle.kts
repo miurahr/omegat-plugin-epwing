@@ -4,7 +4,6 @@ plugins {
     checkstyle
     jacoco
     distribution
-    maven
     id("maven-publish")
     id("org.omegat.gradle") version "1.5.3"
     id("com.github.spotbugs") version "5.0.0"

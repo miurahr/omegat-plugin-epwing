@@ -99,7 +99,7 @@ public class EBDict implements IDictionary {
      * @return List of entries. May be empty, but cannot be null.
      */
     @Override
-    public List<DictionaryEntry> readArticlesPredictive(String word) throws Exception {
+    public List<DictionaryEntry> readArticlesPredictive(final String word) throws Exception {
         Searcher sh;
         Result searchResult;
         Hook<String> hook;

@@ -29,9 +29,11 @@ if (dotgit.exists()) {
     println("Read version property from gradle.properties.")
 }
 
-configure<JavaPluginConvention> {
+java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+    withJavadocJar()
 }
 
 omegat {
@@ -63,17 +65,23 @@ jacoco {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test) // tests are required to run before generating the report
-}
-
-tasks.jacocoTestReport {
     reports {
         xml.required.set(true)  // coveralls plugin depends on xml format report
         html.required.set(true)
     }
 }
 
+tasks.getByName<Test>("test") {
+    useJUnitPlatform()
+}
+
 coveralls {
     jacocoReportPath = "build/reports/jacoco/test/jacocoTestReport.xml"
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-Xlint:deprecation")
+    options.compilerArgs.add("-Xlint:unchecked")
 }
 
 distributions {

@@ -47,7 +47,7 @@ repositories {
 }
 
 dependencies {
-    packIntoJar("io.github.eb4j:eb4j:2.3.0")
+    packIntoJar("io.github.eb4j:eb4j:2.3.1")
     implementation("commons-io:commons-io:2.11.0")
     implementation("commons-lang:commons-lang:2.6")
     // should not bundle

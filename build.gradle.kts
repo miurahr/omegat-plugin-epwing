@@ -9,7 +9,7 @@ plugins {
     id("com.github.spotbugs") version "5.0.5"
     id("com.diffplug.spotless") version "6.2.0"
     id("com.github.kt3k.coveralls") version "2.12.0"
-    id("com.palantir.git-version") version "0.12.3" apply false
+    id("com.palantir.git-version") version "0.13.0" apply false
 }
 
 // we handle cases without .git directory

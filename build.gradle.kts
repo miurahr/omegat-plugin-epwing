@@ -56,7 +56,7 @@ dependencies {
     testImplementation("org.codehaus.groovy:groovy-all:3.0.10")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("com.github.spotbugs:spotbugs-annotations:4.5.3")
+    testImplementation("com.github.spotbugs:spotbugs-annotations:4.6.0")
 }
 
 jacoco {

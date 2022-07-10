@@ -1,4 +1,0 @@
-Licenses:
-
-The epwing and epwing-zipped dictionaries are made by OmegaT project and are under the
-GPL license. EBStudio is used for generating these dictionaries.
